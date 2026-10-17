@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+data/
+artifacts/
+logs/
+dbt/target/
+dbt/dbt_packages/
+*.tfstate
+*.tfstate.*
+.terraform/
+credentials*.json
+service-account*.json
