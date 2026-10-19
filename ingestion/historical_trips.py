@@ -1,5 +1,6 @@
 
 import csv
+import os
 import hashlib
 import io
 import logging
@@ -16,9 +17,18 @@ from google.cloud import storage
 PROJECT_ID = "ba882-bluebikes-pipeline"
 BUCKET_NAME = "ba882-bluebikes-pipeline-raw"
 
+TRIP_MONTH = os.environ.get("TRIP_MONTH", "202601")
+
+if len(TRIP_MONTH) != 6 or not TRIP_MONTH.isdigit():
+    raise ValueError("TRIP_MONTH must be YYYYMM")
+
+year, month = TRIP_MONTH[:4], TRIP_MONTH[4:]
+if not 1 <= int(month) <= 12:
+    raise ValueError("Invalid month")
+
 SOURCE_URL = (
-    "https://s3.amazonaws.com/hubway-data/"
-    "202601-bluebikes-tripdata.zip"
+    f"https://s3.amazonaws.com/hubway-data/"
+    f"{TRIP_MONTH}-bluebikes-tripdata.zip"
 )
 
 REQUIRED_COLUMNS = {
@@ -29,9 +39,115 @@ REQUIRED_COLUMNS = {
 logging.basicConfig(level=logging.INFO)
 
 
+
+def load_trips_to_bigquery(zip_path):
+    from google.cloud import bigquery
+
+    client = bigquery.Client(project=PROJECT_ID)
+    table_id = f"{PROJECT_ID}.raw.historical_trips"
+
+    string_cols = [
+        "ride_id", "rideable_type",
+        "start_station_name", "start_station_id",
+        "end_station_name", "end_station_id",
+        "member_casual",
+    ]
+    time_cols = ["started_at", "ended_at"]
+    float_cols = ["start_lat", "start_lng", "end_lat", "end_lng"]
+
+    column_types = {
+        **{c: "STRING" for c in string_cols},
+        **{c: "TIMESTAMP" for c in time_cols},
+        **{c: "FLOAT64" for c in float_cols},
+    }
+
+    columns = [
+        "ride_id", "rideable_type", "started_at", "ended_at",
+        "start_station_name", "start_station_id",
+        "end_station_name", "end_station_id",
+        "start_lat", "start_lng", "end_lat", "end_lng",
+        "member_casual",
+    ]
+    schema = [
+        bigquery.SchemaField(c, column_types[c]) for c in columns
+    ]
+
+    table = bigquery.Table(table_id, schema=schema)
+    client.create_table(table, exists_ok=True)
+
+    import uuid
+    staging_id = f"{PROJECT_ID}.raw._trips_load_{uuid.uuid4().hex[:12]}"
+    columns = [
+        "ride_id", "rideable_type", "started_at", "ended_at",
+        "start_station_name", "start_station_id",
+        "end_station_name", "end_station_id",
+        "start_lat", "start_lng", "end_lat", "end_lng",
+        "member_casual",
+    ]
+
+    try:
+        with zipfile.ZipFile(zip_path) as archive:
+            files = [
+                n for n in archive.namelist()
+                if n.lower().endswith(".csv")
+                and not n.startswith("__MACOSX/")
+            ]
+            for i, name in enumerate(files):
+                with tempfile.TemporaryFile() as csv_file:
+                    with archive.open(name) as source:
+                        shutil.copyfileobj(source, csv_file)
+                    csv_file.seek(0)
+
+                    job_config = bigquery.LoadJobConfig(
+                        schema=schema,
+                        source_format=bigquery.SourceFormat.CSV,
+                        skip_leading_rows=1,
+                        write_disposition=(
+                            bigquery.WriteDisposition.WRITE_TRUNCATE
+                            if i == 0
+                            else bigquery.WriteDisposition.WRITE_APPEND
+                        ),
+                    )
+                    client.load_table_from_file(
+                        csv_file,
+                        staging_id,
+                        job_config=job_config,
+                    ).result()
+
+        fields = ", ".join(columns)
+        updates = ", ".join(
+            f"T.{c} = S.{c}" for c in columns if c != "ride_id"
+        )
+        inserts = ", ".join(f"S.{c}" for c in columns)
+
+        query = f"""
+        MERGE `{table_id}` T
+        USING (
+          SELECT * EXCEPT(_rn)
+          FROM (
+            SELECT *,
+              ROW_NUMBER() OVER (
+                PARTITION BY ride_id ORDER BY started_at DESC
+              ) AS _rn
+            FROM `{staging_id}`
+            WHERE ride_id IS NOT NULL
+          )
+          WHERE _rn = 1
+        ) S
+        ON T.ride_id = S.ride_id
+        WHEN MATCHED THEN UPDATE SET {updates}
+        WHEN NOT MATCHED THEN
+          INSERT ({fields}) VALUES ({inserts})
+        """
+        client.query(query).result()
+        logging.info("BigQuery MERGE completed: %s", table_id)
+    finally:
+        client.delete_table(staging_id, not_found_ok=True)
+
+
 def main():
     with tempfile.TemporaryDirectory() as tmp:
-        zip_path = Path(tmp) / "202601-bluebikes-tripdata.zip"
+        zip_path = Path(tmp) / f"{TRIP_MONTH}-bluebikes-tripdata.zip"
 
         # Download source ZIP
         with urlopen(SOURCE_URL, timeout=60) as response:
@@ -77,8 +193,8 @@ def main():
         ).hexdigest()
 
         object_name = (
-            f"historical_trips/2026/01/{checksum}/"
-            "202601-bluebikes-tripdata.zip"
+            f"historical_trips/{year}/{month}/{checksum}/"
+            f"{TRIP_MONTH}-bluebikes-tripdata.zip"
         )
 
         client = storage.Client(project=PROJECT_ID)
@@ -103,6 +219,7 @@ def main():
         except PreconditionFailed:
             logging.info("Already exists in GCS: %s", object_name)
 
+        load_trips_to_bigquery(zip_path)
         logging.info("Historical trips ingestion completed!")
 
 
