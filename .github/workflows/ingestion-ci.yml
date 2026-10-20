@@ -1,0 +1,53 @@
+name: Ingestion CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "feature/ing-*"
+
+jobs:
+  validate-ingestion:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check Python syntax
+        run: |
+          python -m compileall -q ingestion orchestration/astro/dags
+
+      - name: Check DAG definitions
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          expected = {
+              "bluebikes_station_snapshot_dag",
+              "bluebikes_trip_ingestion_dag",
+              "weather_ingestion_dag",
+          }
+
+          found = set()
+
+          for path in Path("orchestration/astro/dags").glob("*.py"):
+              tree = ast.parse(path.read_text())
+              for node in ast.walk(tree):
+                  if (
+                      isinstance(node, ast.keyword)
+                      and node.arg == "dag_id"
+                      and isinstance(node.value, ast.Constant)
+                      and isinstance(node.value.value, str)
+                  ):
+                      found.add(node.value.value)
+
+          missing = expected - found
+          assert not missing, f"Missing DAGs: {missing}"
+          print("DAG source checks: PASS")
+          PY
