@@ -86,7 +86,8 @@ def upload_raw(client, feed, payload, url, collected_at):
     ).encode("utf-8")
 
     checksum = hashlib.sha256(content).hexdigest()
-    object_name = f"gbfs/{feed}/{checksum}.json"
+    snapshot_id = collected_at
+    object_name = f"gbfs/{feed}/{snapshot_id.replace(':', '-')}/{checksum}.json"
 
     blob = client.bucket(BUCKET).blob(object_name)
     blob.metadata = {
@@ -107,7 +108,7 @@ def upload_raw(client, feed, payload, url, collected_at):
     except PreconditionFailed:
         logging.info("Already exists in GCS: %s", object_name)
 
-    return checksum
+    return snapshot_id
 
 
 def prepare_rows(feed, stations, snapshot_id, url, collected_at):

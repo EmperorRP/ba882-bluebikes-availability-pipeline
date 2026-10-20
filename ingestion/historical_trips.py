@@ -116,10 +116,22 @@ def upload_gcs(path, url, count):
     except PreconditionFailed:
         logging.info("Already exists in GCS: %s", object_name)
 
+    return f"gs://{BUCKET}/{object_name}", url, digest
 
-def load_bigquery(paths):
+
+def load_bigquery(paths, gcs_path, source_url, checksum):
     client = bigquery.Client(project=PROJECT)
     client.create_table(bigquery.Table(TABLE, schema=SCHEMA), exists_ok=True)
+    for name, dtype in [
+        ("gcs_path", "STRING"),
+        ("source_url", "STRING"),
+        ("source_checksum", "STRING"),
+        ("ingested_at", "TIMESTAMP"),
+    ]:
+        client.query(
+            f"ALTER TABLE `{TABLE}` ADD COLUMN IF NOT EXISTS {name} {dtype}"
+        ).result()
+
     staging = f"{PROJECT}.raw._trips_load_{uuid.uuid4().hex[:12]}"
 
     try:
@@ -137,32 +149,68 @@ def load_bigquery(paths):
                     f, staging, job_config=config
                 ).result()
 
-        names = ", ".join(COLUMNS)
-        values = ", ".join(f"S.{c}" for c in COLUMNS)
+        lineage_columns = [
+            "gcs_path", "source_url",
+            "source_checksum", "ingested_at"
+        ]
+        all_columns = COLUMNS + lineage_columns
+
+        names = ", ".join(all_columns)
+        values = ", ".join(f"S.{c}" for c in all_columns)
         updates = ", ".join(
-            f"T.{c} = S.{c}" for c in COLUMNS if c != "ride_id"
+            f"T.{c} = S.{c}"
+            for c in all_columns if c != "ride_id"
         )
 
-        client.query(f"""
+        ingested_at = datetime.now(timezone.utc)
+
+        query = f"""
             MERGE `{TABLE}` T
             USING (
-                SELECT * EXCEPT(rn)
+                SELECT
+                    D.*,
+                    @gcs_path AS gcs_path,
+                    @source_url AS source_url,
+                    @checksum AS source_checksum,
+                    @ingested_at AS ingested_at
                 FROM (
-                    SELECT *,
-                      ROW_NUMBER() OVER (
-                        PARTITION BY ride_id
-                        ORDER BY started_at DESC
-                      ) rn
-                    FROM `{staging}`
-                    WHERE ride_id IS NOT NULL
-                )
-                WHERE rn = 1
+                    SELECT * EXCEPT(rn)
+                    FROM (
+                        SELECT *,
+                          ROW_NUMBER() OVER (
+                            PARTITION BY ride_id
+                            ORDER BY started_at DESC
+                          ) AS rn
+                        FROM `{staging}`
+                        WHERE ride_id IS NOT NULL
+                    )
+                    WHERE rn = 1
+                ) D
             ) S
             ON T.ride_id = S.ride_id
             WHEN MATCHED THEN UPDATE SET {updates}
             WHEN NOT MATCHED THEN
-              INSERT ({names}) VALUES ({values})
-        """).result()
+                INSERT ({names}) VALUES ({values})
+        """
+
+        config = bigquery.QueryJobConfig(
+            query_parameters=[
+                bigquery.ScalarQueryParameter(
+                    "gcs_path", "STRING", gcs_path
+                ),
+                bigquery.ScalarQueryParameter(
+                    "source_url", "STRING", source_url
+                ),
+                bigquery.ScalarQueryParameter(
+                    "checksum", "STRING", checksum
+                ),
+                bigquery.ScalarQueryParameter(
+                    "ingested_at", "TIMESTAMP", ingested_at
+                ),
+            ]
+        )
+
+        client.query(query, job_config=config).result()
 
         logging.info("BigQuery MERGE completed: %s", TABLE)
     finally:
@@ -176,10 +224,13 @@ def main():
         paths = csv_paths(source, tmp)
         count = sum(validate_csv(path) for path in paths)
         logging.info("Validated %s trip records", count)
-        upload_gcs(source, url, count)
-        load_bigquery(paths)
+        gcs_path, source_url, checksum = upload_gcs(
+            source, url, count
+        )
+        load_bigquery(paths, gcs_path, source_url, checksum)
         logging.info("Historical trips ingestion completed!")
 
 
 if __name__ == "__main__":
     main()
+    
