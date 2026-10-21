@@ -1,0 +1,57 @@
+version: 2
+models:
+  - name: fct_station_inventory_history
+    description: "Observed station/snapshot inventory history, preserving every staged status row and known-at-collection metadata. Strict usability excludes capacity contradictions but does not guarantee a training target or current freshness."
+    columns:
+      - name: inventory_observation_id
+        data_tests: [not_null, unique]
+      - name: station_id
+        data_tests: [not_null]
+      - name: snapshot_id
+        data_tests: [not_null]
+      - name: snapshot_at_utc
+        data_tests: [not_null]
+      - name: source_available_at_utc
+        data_tests: [not_null]
+      - name: report_time_quality
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [invalid_timestamp, future_report, stale_report, valid]
+      - name: inventory_counts_quality
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [missing_counts, negative_counts, valid]
+      - name: capacity_check
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [unknown_capacity, nonpositive_capacity, invalid_counts, exceeds_known_capacity, within_known_capacity]
+      - name: is_bike_observation_usable
+        data_tests: [not_null]
+      - name: is_dock_observation_usable
+        data_tests: [not_null]
+      - name: collection_local_date
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: calendar_date
+  - name: inventory_collection_quality
+    description: "Observed collection counts and quality, one row per snapshot, with freshness evaluated when queried. Counts are not a promised complete station universe."
+    columns:
+      - name: snapshot_id
+        data_tests: [not_null, unique]
+      - name: observation_count
+        data_tests: [not_null]
+      - name: station_count
+        data_tests: [not_null]
+      - name: is_latest_collection
+        data_tests: [not_null]
+      - name: is_collection_stale_now
+        data_tests: [not_null]

@@ -1,0 +1,215 @@
+{
+  "source": "gs://ba882-bluebikes-pipeline-raw/historical_trips/2026/03/4513b52840813fced3f03154629cb3d7841d668f11e3e7d93db3827efc11022e/202603-bluebikes-tripdata.zip",
+  "csv": [
+    {
+      "ride_id": "BBE8F5A294A55308",
+      "started_at": "2026-03-30 11:41:53.725",
+      "ended_at": "2026-03-30 11:47:42.055"
+    },
+    {
+      "ride_id": "9F8E0B7F965C0464",
+      "started_at": "2026-03-15 11:34:03.485",
+      "ended_at": "2026-03-15 11:41:19.954"
+    },
+    {
+      "ride_id": "77642A7387AD81F8",
+      "started_at": "2026-03-05 08:50:23.824",
+      "ended_at": "2026-03-05 08:57:29.629"
+    },
+    {
+      "ride_id": "6A4729DDD56F5C5C",
+      "started_at": "2026-03-25 08:58:55.914",
+      "ended_at": "2026-03-25 09:06:44.229"
+    },
+    {
+      "ride_id": "8AD04330E86CE701",
+      "started_at": "2026-03-17 09:15:26.882",
+      "ended_at": "2026-03-17 09:22:50.961"
+    }
+  ],
+  "bigquery": [
+    {
+      "ride_id": "6A4729DDD56F5C5C",
+      "started_at": "2026-03-25 08:58:55.914000+00:00",
+      "ended_at": "2026-03-25 09:06:44.229000+00:00"
+    },
+    {
+      "ride_id": "77642A7387AD81F8",
+      "started_at": "2026-03-05 08:50:23.824000+00:00",
+      "ended_at": "2026-03-05 08:57:29.629000+00:00"
+    },
+    {
+      "ride_id": "8AD04330E86CE701",
+      "started_at": "2026-03-17 09:15:26.882000+00:00",
+      "ended_at": "2026-03-17 09:22:50.961000+00:00"
+    },
+    {
+      "ride_id": "9F8E0B7F965C0464",
+      "started_at": "2026-03-15 11:34:03.485000+00:00",
+      "ended_at": "2026-03-15 11:41:19.954000+00:00"
+    },
+    {
+      "ride_id": "BBE8F5A294A55308",
+      "started_at": "2026-03-30 11:41:53.725000+00:00",
+      "ended_at": "2026-03-30 11:47:42.055000+00:00"
+    }
+  ],
+  "preflight": {
+    "csv_dst_hours": {
+      "2026-03-07 00": 87,
+      "2026-03-07 01": 64,
+      "2026-03-07 02": 50,
+      "2026-03-07 03": 17,
+      "2026-03-07 04": 22,
+      "2026-03-07 05": 16,
+      "2026-03-07 06": 59,
+      "2026-03-07 07": 89,
+      "2026-03-07 08": 211,
+      "2026-03-07 09": 264,
+      "2026-03-07 10": 316,
+      "2026-03-07 11": 414,
+      "2026-03-07 12": 416,
+      "2026-03-07 13": 411,
+      "2026-03-07 14": 415,
+      "2026-03-07 15": 537,
+      "2026-03-07 16": 515,
+      "2026-03-07 17": 459,
+      "2026-03-07 18": 388,
+      "2026-03-07 19": 339,
+      "2026-03-07 20": 247,
+      "2026-03-07 21": 225,
+      "2026-03-07 22": 184,
+      "2026-03-07 23": 186,
+      "2026-03-08 00": 136,
+      "2026-03-08 01": 103,
+      "2026-03-08 03": 106,
+      "2026-03-08 04": 15,
+      "2026-03-08 05": 23,
+      "2026-03-08 06": 42,
+      "2026-03-08 07": 60,
+      "2026-03-08 08": 124,
+      "2026-03-08 09": 179,
+      "2026-03-08 10": 288,
+      "2026-03-08 11": 401,
+      "2026-03-08 12": 528,
+      "2026-03-08 13": 558,
+      "2026-03-08 14": 650,
+      "2026-03-08 15": 639,
+      "2026-03-08 16": 630,
+      "2026-03-08 17": 617,
+      "2026-03-08 18": 557,
+      "2026-03-08 19": 440,
+      "2026-03-08 20": 329,
+      "2026-03-08 21": 225,
+      "2026-03-08 22": 195,
+      "2026-03-08 23": 122,
+      "2026-03-09 00": 61,
+      "2026-03-09 01": 22,
+      "2026-03-09 02": 17,
+      "2026-03-09 03": 21,
+      "2026-03-09 04": 12,
+      "2026-03-09 05": 64,
+      "2026-03-09 06": 161,
+      "2026-03-09 07": 423,
+      "2026-03-09 08": 934,
+      "2026-03-09 09": 592,
+      "2026-03-09 10": 430,
+      "2026-03-09 11": 420,
+      "2026-03-09 12": 549,
+      "2026-03-09 13": 531,
+      "2026-03-09 14": 572,
+      "2026-03-09 15": 751,
+      "2026-03-09 16": 1132,
+      "2026-03-09 17": 1594,
+      "2026-03-09 18": 1263,
+      "2026-03-09 19": 781,
+      "2026-03-09 20": 500,
+      "2026-03-09 21": 351,
+      "2026-03-09 22": 222,
+      "2026-03-09 23": 138
+    },
+    "trip_times": [
+      {
+        "negative_after_conversion": 0,
+        "nonexistent_local_times": 0,
+        "dst_duration_changes": 34,
+        "ambiguous_start_times": 0
+      }
+    ],
+    "trip_categories": [
+      {
+        "rideable_type": "classic_bike",
+        "member_casual": "casual",
+        "row_count": 777937
+      },
+      {
+        "rideable_type": "electric_bike",
+        "member_casual": "member",
+        "row_count": 824937
+      },
+      {
+        "rideable_type": "electric_bike",
+        "member_casual": "casual",
+        "row_count": 301123
+      },
+      {
+        "rideable_type": "classic_bike",
+        "member_casual": "member",
+        "row_count": 1623331
+      }
+    ],
+    "weather_metadata": [
+      {
+        "source": "forecast_api",
+        "row_count": 1008,
+        "missing_ingestion": 336,
+        "missing_fetch": 336,
+        "past_at_fetch": 337,
+        "future_at_fetch": 333,
+        "fetch_after_ingestion": 0,
+        "non_hourly": 0
+      },
+      {
+        "source": "historical",
+        "row_count": 6864,
+        "missing_ingestion": 0,
+        "missing_fetch": 6864,
+        "past_at_fetch": 0,
+        "future_at_fetch": 0,
+        "fetch_after_ingestion": 0,
+        "non_hourly": 0
+      }
+    ],
+    "weather_original": [
+      {
+        "source": "historical",
+        "object": "weather/historical/4819ee315f8377ec43ff5cc0246c13f99e5302e46b35789f7379edbcc93723a1.json",
+        "timezone": "GMT",
+        "utc_offset_seconds": 0,
+        "hourly_units": {
+          "precipitation": "mm",
+          "relative_humidity_2m": "%",
+          "temperature_2m": "\u00b0C",
+          "time": "unixtime",
+          "wind_speed_10m": "km/h"
+        },
+        "first_time": 1767225600
+      },
+      {
+        "source": "forecast_api",
+        "object": "weather/forecast_api/08a773d68a9b4ffc06d05601e18d6b1b8da7dd91117895d60ea5ea424ca8b406.json",
+        "timezone": "GMT",
+        "utc_offset_seconds": 0,
+        "hourly_units": {
+          "time": "unixtime",
+          "temperature_2m": "\u00b0C",
+          "relative_humidity_2m": "%",
+          "precipitation": "mm",
+          "wind_speed_10m": "km/h"
+        },
+        "first_time": 1791763200
+      }
+    ]
+  },
+  "timezone_status": "inferred_from_unzoned_csv_and_dst_pattern_not_provider_confirmed"
+}

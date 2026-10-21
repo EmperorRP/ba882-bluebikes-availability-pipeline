@@ -1,0 +1,147 @@
+version: 2
+sources:
+  - name: bluebikes
+    database: "{{ env_var('DBT_PROJECT', 'ba882-bluebikes-pipeline') }}"
+    schema: raw
+    loader: python_airflow
+    tables:
+      - name: station_information
+        description: GBFS station metadata snapshots; extract short_name from raw_json for trip mapping.
+        config:
+          loaded_at_field: ingested_at_utc
+          freshness:
+            warn_after: {count: 48, period: hour}
+            error_after: {count: 7, period: day}
+        columns:
+          - name: station_id
+            data_type: STRING
+            description: "GBFS station identifier; differs from trip station codes."
+          - name: name
+            data_type: STRING
+          - name: lat
+            data_type: FLOAT
+          - name: lon
+            data_type: FLOAT
+          - name: capacity
+            data_type: INTEGER
+          - name: snapshot_id
+            data_type: STRING
+            description: "Collection identifier; legacy hashes and newer timestamp strings coexist."
+          - name: ingested_at_utc
+            data_type: TIMESTAMP
+            description: "UTC collection/ingestion timestamp."
+          - name: source_url
+            data_type: STRING
+          - name: raw_json
+            data_type: STRING
+            description: "Original station record; short_name in information records maps trip station codes."
+      - name: station_status
+        description: GBFS inventory observations; sparse coverage is not continuous history.
+        config:
+          loaded_at_field: ingested_at_utc
+          freshness:
+            warn_after: {count: 60, period: minute}
+            error_after: {count: 120, period: minute}
+        columns:
+          - name: station_id
+            data_type: STRING
+            description: "GBFS station identifier; differs from trip station codes."
+          - name: num_bikes_available
+            data_type: INTEGER
+          - name: num_docks_available
+            data_type: INTEGER
+          - name: is_renting
+            data_type: INTEGER
+          - name: is_returning
+            data_type: INTEGER
+          - name: last_reported
+            data_type: INTEGER
+            description: "Source-reported Unix seconds; includes stale and sentinel values."
+          - name: snapshot_id
+            data_type: STRING
+            description: "Collection identifier; legacy hashes and newer timestamp strings coexist."
+          - name: ingested_at_utc
+            data_type: TIMESTAMP
+            description: "UTC collection/ingestion timestamp."
+          - name: source_url
+            data_type: STRING
+          - name: raw_json
+            data_type: STRING
+            description: "Original station record; short_name in information records maps trip station codes."
+      - name: historical_trips
+        description: Completed rides from monthly archives; rides do not reconstruct inventory.
+        config:
+          freshness: null
+        columns:
+          - name: ride_id
+            data_type: STRING
+          - name: rideable_type
+            data_type: STRING
+          - name: start_station_name
+            data_type: STRING
+          - name: start_station_id
+            data_type: STRING
+            description: "Trip station code; map through GBFS short_name. May be missing."
+          - name: end_station_name
+            data_type: STRING
+          - name: end_station_id
+            data_type: STRING
+            description: "Trip station code; map through GBFS short_name. May be missing."
+          - name: member_casual
+            data_type: STRING
+          - name: started_at
+            data_type: TIMESTAMP
+            description: "Stored ride start timestamp; original timezone semantics require verification."
+          - name: ended_at
+            data_type: TIMESTAMP
+            description: "Stored ride end timestamp; original timezone semantics require verification."
+          - name: start_lat
+            data_type: FLOAT
+          - name: start_lng
+            data_type: FLOAT
+          - name: end_lat
+            data_type: FLOAT
+          - name: end_lng
+            data_type: FLOAT
+          - name: gcs_path
+            data_type: STRING
+          - name: source_url
+            data_type: STRING
+          - name: source_checksum
+            data_type: STRING
+          - name: ingested_at
+            data_type: TIMESTAMP
+            description: "UTC ingestion timestamp."
+  - name: weather
+    database: "{{ env_var('DBT_PROJECT', 'ba882-bluebikes-pipeline') }}"
+    schema: raw
+    loader: python_airflow
+    tables:
+      - name: weather_hourly
+        description: Historical weather and versioned forecast API rows, including past_days.
+        config:
+          loaded_at_field: "case when source = 'forecast_api' then forecast_issued_at end"
+          freshness:
+            warn_after: {count: 36, period: hour}
+            error_after: {count: 48, period: hour}
+        columns:
+          - name: weather_time
+            data_type: TIMESTAMP
+            description: "UTC weather valid time."
+          - name: source
+            data_type: STRING
+            description: "historical or forecast_api; forecast_api also includes API past_days results."
+          - name: temperature_c
+            data_type: FLOAT
+          - name: humidity_pct
+            data_type: FLOAT
+          - name: precipitation_mm
+            data_type: FLOAT
+          - name: wind_speed_kmh
+            data_type: FLOAT
+          - name: forecast_issued_at
+            data_type: TIMESTAMP
+            description: "UTC fetch time recorded by ingestion, not provider issue time; null in legacy forecast rows."
+          - name: ingested_at
+            data_type: TIMESTAMP
+            description: "UTC ingestion timestamp."
