@@ -139,6 +139,7 @@ See [runbook](runbook.md) for local authentication, scoped ingestion identity pe
 - Image tag: `deploy-2026-10-22T15-45-18`; digest `sha256:53dca7ec83cec0decb7eb11585e2857da4401736ce2930c06bf835fd0ac06f8d`.
 - DAG bundle: `2026-10-22T15:46:36.8286228Z`; deployment became healthy and all three DAGs parsed without import errors.
 - Scheduled GBFS run `scheduled__2026-10-22T15:45:00+00:00` succeeded at `15:49:12 UTC`.
+- The next scheduled GBFS run, `scheduled__2026-10-22T15:50:00+00:00`, succeeded at `15:50:17 UTC`. Its new raw batch contains 628 station records collected at `15:50:10 UTC`, confirming the scheduler repeated collection without a manual trigger.
 - Scheduled weather run `scheduled__2026-10-22T06:00:00+00:00` succeeded at `15:49:13 UTC`.
 - Scheduled trip run `scheduled__2026-10-10T06:00:00+00:00` succeeded at `15:49:29 UTC`, exercising the existing September archive through the deployed task. No additional duplicate manual trip run was created.
 - Manual verification runs for GBFS and weather also succeeded. Raw station-status audit then showed eight collections / 5,018 rows, latest collection `15:49:28 UTC` and latest source report `15:48:09 UTC`.
