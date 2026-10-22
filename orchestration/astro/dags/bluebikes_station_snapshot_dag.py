@@ -1,19 +1,20 @@
 
-from datetime import datetime, timedelta
+import os
+import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import subprocess
 
-from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.sdk import DAG
+from airflow.providers.standard.operators.python import PythonOperator
 
 
 def run_gbfs_ingestion():
-    # Find the project root from the DAG file
-    project_root = Path(__file__).resolve().parents[1]
+    project_root = Path(os.environ.get("AIRFLOW_HOME", "/usr/local/airflow"))
     script = project_root / "ingestion" / "gbfs_ingestion.py"
 
     subprocess.run(
-        ["python", str(script)],
+        [sys.executable, str(script)],
         check=True,
         cwd=str(project_root),
         timeout=600,
@@ -22,9 +23,9 @@ def run_gbfs_ingestion():
 
 with DAG(
     dag_id="bluebikes_station_snapshot_dag",
-    description="Collect Bluebikes GBFS snapshots every 30 minutes",
-    start_date=datetime(2026, 10, 17),
-    schedule="*/30 * * * *",
+    description="Collect Bluebikes GBFS snapshots every 5 minutes for availability labels",
+    start_date=datetime(2026, 10, 17, tzinfo=timezone.utc),
+    schedule="*/5 * * * *",
     catchup=False,
     max_active_runs=1,
     default_args={
