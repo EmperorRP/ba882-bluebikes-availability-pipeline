@@ -76,3 +76,5 @@ unit_tests:
         - {prediction_id: P2, target_has_bike: null, label_observation_id: null, label_status: no_usable_label_in_window}
         - {prediction_id: P3, target_has_bike: null, label_observation_id: null, label_status: no_usable_label_in_window}
         - {prediction_id: P4, target_has_bike: 0, label_observation_id: boundary, label_status: observed}
+        - {prediction_id: P5, target_has_bike: null, label_observation_id: null, label_status: no_usable_label_in_window}
+        - {prediction_id: P6, target_has_bike: 1, label_observation_id: five_minute_after, label_status: observed}
