@@ -20,7 +20,7 @@ jobs:
 
       - name: Check Python syntax
         run: |
-          python -m compileall -q ingestion orchestration/astro/dags
+          python -m compileall -q ingestion orchestration/astro/dags orchestration/astro/ingestion
 
       - name: Check DAG definitions
         run: |
@@ -51,3 +51,20 @@ jobs:
           assert not missing, f"Missing DAGs: {missing}"
           print("DAG source checks: PASS")
           PY
+
+  validate-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the deployment image
+        run: docker build -t bluebikes-ingestion-ci orchestration/astro
+      - name: Import DAGs and test task commands in the actual runtime
+        run: >-
+          docker run --rm
+          --entrypoint python
+          --volume "$PWD/orchestration/astro/dags:/usr/local/airflow/dags:ro"
+          --volume "$PWD/orchestration/astro/tests:/usr/local/airflow/tests:ro"
+          bluebikes-ingestion-ci
+          -m unittest discover -s /usr/local/airflow/tests -v
+      - name: Check runtime dependency consistency
+        run: docker run --rm --entrypoint python bluebikes-ingestion-ci -m pip check
