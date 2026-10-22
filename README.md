@@ -17,6 +17,7 @@ GBFS station information/status, historical trips, and weather feed immutable ra
 - `infra/`: repeatable resource configuration.
 - `tests/`: focused component and integration checks as implementation grows.
 - `docs/`: architecture, sources, and runbook.
+  - [Pipeline status and integration guide](docs/pipeline-status.md): current workstream status, deployment gates, and integration sequence.
 
 ## Development
 
