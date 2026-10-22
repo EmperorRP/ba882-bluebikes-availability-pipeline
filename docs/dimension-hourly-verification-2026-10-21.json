@@ -1,0 +1,328 @@
+{
+  "verified_on": "2026-10-21",
+  "tests": {
+    "pass": 31
+  },
+  "models": {
+    "success": 4
+  },
+  "validation_runs": [
+    "dbt build --select tag:dimension_hourly (30 tests passed; date continuity SQL required repair)",
+    "dbt test --select dimension_hourly_contract (repaired test passed)"
+  ],
+  "tables": {
+    "marts.dim_station": {
+      "rows": 627,
+      "type": "TABLE",
+      "partition": null,
+      "clusters": null
+    },
+    "marts.dim_date": {
+      "rows": 300,
+      "type": "TABLE",
+      "partition": null,
+      "clusters": null
+    },
+    "intermediate.int_trip_endpoints_hourly": {
+      "rows": 2615657,
+      "type": "TABLE",
+      "partition": {
+        "type": "DAY",
+        "field": "hour_at_utc"
+      },
+      "clusters": [
+        "station_id",
+        "mapping_status",
+        "endpoint_type"
+      ]
+    },
+    "marts.fct_station_hourly_flows": {
+      "rows": 1737138,
+      "type": "TABLE",
+      "partition": {
+        "type": "DAY",
+        "field": "hour_at_utc"
+      },
+      "clusters": [
+        "station_id"
+      ]
+    }
+  },
+  "queries": {
+    "source": [
+      {
+        "total_trips": 3527328,
+        "valid_trips": 3527328,
+        "excluded_trips": 0
+      }
+    ],
+    "endpoint_totals": [
+      {
+        "endpoint_type": "arrival",
+        "mapping_status": "mapped",
+        "endpoints": 3519472
+      },
+      {
+        "endpoint_type": "arrival",
+        "mapping_status": "missing_code",
+        "endpoints": 7234
+      },
+      {
+        "endpoint_type": "arrival",
+        "mapping_status": "unmapped_code",
+        "endpoints": 622
+      },
+      {
+        "endpoint_type": "departure",
+        "mapping_status": "mapped",
+        "endpoints": 3524722
+      },
+      {
+        "endpoint_type": "departure",
+        "mapping_status": "missing_code",
+        "endpoints": 1923
+      },
+      {
+        "endpoint_type": "departure",
+        "mapping_status": "unmapped_code",
+        "endpoints": 683
+      }
+    ],
+    "fact_totals": [
+      {
+        "station_hours": 1737138,
+        "stations": 620,
+        "departures": 3524722,
+        "arrivals": 3519472,
+        "net_flow": -5250,
+        "first_hour": "2025-12-31 12:00:00+00:00",
+        "last_hour": "2026-10-01 03:00:00+00:00"
+      }
+    ],
+    "calendar": [
+      {
+        "dates": 300,
+        "first_date": "2025-12-31",
+        "last_date": "2026-10-26"
+      }
+    ],
+    "dst": [
+      {
+        "utc_hours": 23,
+        "nonexistent_local_hour_rows": 0
+      }
+    ]
+  },
+  "test_results": [
+    {
+      "unique_id": "model.bluebikes.dim_station",
+      "status": "success",
+      "failures": null,
+      "execution_time": 3.090365409851074
+    },
+    {
+      "unique_id": "model.bluebikes.dim_date",
+      "status": "success",
+      "failures": null,
+      "execution_time": 4.716217994689941
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_dim_station_latest_metadata_at_utc.a1e67570b5",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.5914759635925293
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_dim_station_station_id.34954bc218",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.439279556274414
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_dim_station_station_name.264a600ac8",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.52689790725708
+    },
+    {
+      "unique_id": "test.bluebikes.unique_dim_station_station_id.118f0d4d56",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.376877784729004
+    },
+    {
+      "unique_id": "model.bluebikes.int_trip_endpoints_hourly",
+      "status": "success",
+      "failures": null,
+      "execution_time": 7.954996585845947
+    },
+    {
+      "unique_id": "test.bluebikes.unique_dim_station_trip_station_id.4422e3483a",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.360656976699829
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_dim_date_calendar_date.98c13acc7a",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.4089670181274414
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_dim_date_date_key.881d0a31b6",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.2775006294250488
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_dim_date_is_weekend.cf6d8ca02c",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.5435864925384521
+    },
+    {
+      "unique_id": "test.bluebikes.unique_dim_date_calendar_date.abd0942d2a",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.2630729675292969
+    },
+    {
+      "unique_id": "test.bluebikes.unique_dim_date_date_key.0869fd48f9",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.3502702713012695
+    },
+    {
+      "unique_id": "test.bluebikes.accepted_values_int_trip_endpoints_hourly_endpoint_type__departure__arrival.f08a4e8707",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.7444391250610352
+    },
+    {
+      "unique_id": "test.bluebikes.accepted_values_int_trip_endpoints_hourly_mapping_status__mapped__missing_code__unmapped_code.c5644f63cd",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.7130937576293945
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_int_trip_endpoints_hourly_endpoint_count.1754dd94f4",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.6556923389434814
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_int_trip_endpoints_hourly_endpoint_hour_id.f06382763a",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.7037436962127686
+    },
+    {
+      "unique_id": "test.bluebikes.hourly_endpoint_conservation",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 4.669881820678711
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_int_trip_endpoints_hourly_endpoint_type.aad65c3ceb",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.6146655082702637
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_int_trip_endpoints_hourly_hour_at_utc.1eb11463ef",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.2334511280059814
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_int_trip_endpoints_hourly_mapping_status.d967d74581",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.7107529640197754
+    },
+    {
+      "unique_id": "test.bluebikes.unique_int_trip_endpoints_hourly_endpoint_hour_id.4edf8492ac",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.855513334274292
+    },
+    {
+      "unique_id": "model.bluebikes.fct_station_hourly_flows",
+      "status": "success",
+      "failures": null,
+      "execution_time": 6.455390930175781
+    },
+    {
+      "unique_id": "test.bluebikes.dimension_hourly_contract",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 3.442171096801758
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_hourly_flows_arrivals.d6696593f3",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.6087617874145508
+    },
+    {
+      "unique_id": "test.bluebikes.hourly_station_reconciliation",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 2.455895185470581
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_hourly_flows_hour_at_utc.9367f7bc95",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.391819715499878
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_hourly_flows_departures.559a4bfccc",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.604560375213623
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_hourly_flows_net_flow.6158e0935f",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.5800812244415283
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_hourly_flows_local_date.9e22065feb",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.7345640659332275
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_hourly_flows_station_hour_id.e5cb584eb5",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.3571383953094482
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_hourly_flows_station_id.697ce16290",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.569918155670166
+    },
+    {
+      "unique_id": "test.bluebikes.relationships_fct_station_hourly_flows_local_date__calendar_date__ref_dim_date_.d396e6b29b",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.5635366439819336
+    },
+    {
+      "unique_id": "test.bluebikes.relationships_fct_station_hourly_flows_station_id__station_id__ref_dim_station_.e4a0dc6147",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.8136107921600342
+    },
+    {
+      "unique_id": "test.bluebikes.unique_fct_station_hourly_flows_station_hour_id.0a454e9f79",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.859501838684082
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+bluebikes:
+  target: parse
+  outputs:
+    parse:
+      type: bigquery
+      method: oauth
+      project: ba882-bluebikes-pipeline
+      dataset: "{{ env_var('DBT_DATASET', 'ci_parse_only') }}"
+      location: US
+      threads: 2
+      maximum_bytes_billed: 1000000000
+      job_execution_timeout_seconds: 300

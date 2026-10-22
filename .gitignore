@@ -15,3 +15,7 @@ dbt/dbt_packages/
 .terraform/
 credentials*.json
 service-account*.json
+
+/dbt/profiles.yml
+
+/dbt/.user.yml

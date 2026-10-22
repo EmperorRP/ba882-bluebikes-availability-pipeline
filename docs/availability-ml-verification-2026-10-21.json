@@ -1,0 +1,643 @@
+{
+  "verified_on": "2026-10-21",
+  "dbt_invocation_id": "f24afc79-ccfb-4583-be33-7ad44e9d64ed",
+  "tests": {
+    "pass": 28,
+    "warn": 1
+  },
+  "unit_tests": {
+    "pass": 1
+  },
+  "models": {
+    "success": 5
+  },
+  "policy": {
+    "availability_horizons_minutes": [
+      60,
+      180,
+      360,
+      1440
+    ],
+    "availability_label_tolerance_minutes": 15,
+    "availability_max_report_age_minutes": 60,
+    "availability_trip_lookback_days": 56,
+    "availability_lag_minutes": 60
+  },
+  "tables": {
+    "intermediate.int_availability_prediction_requests": {
+      "rows": 15048,
+      "type": "VIEW",
+      "partition": null,
+      "clusters": null,
+      "columns": [
+        "prediction_id",
+        "origin_observation_id",
+        "station_id",
+        "origin_snapshot_id",
+        "prediction_at_utc",
+        "origin_reported_at_utc",
+        "origin_available_at_utc",
+        "origin_metadata_available_at_utc",
+        "origin_trip_station_id",
+        "origin_capacity",
+        "origin_bikes_available",
+        "origin_docks_available",
+        "origin_bike_fill_ratio",
+        "origin_report_age_seconds",
+        "is_origin_usable",
+        "horizon_minutes",
+        "label_tolerance_minutes",
+        "target_at_utc",
+        "target_hour_utc",
+        "target_at_local",
+        "target_local_hour",
+        "target_local_day_of_week",
+        "target_is_weekend"
+      ]
+    },
+    "marts.mart_station_availability_features": {
+      "rows": 15048,
+      "type": "TABLE",
+      "partition": {
+        "type": "DAY",
+        "field": "prediction_at_utc"
+      },
+      "clusters": [
+        "station_id",
+        "horizon_minutes"
+      ],
+      "columns": [
+        "prediction_id",
+        "station_id",
+        "origin_observation_id",
+        "origin_snapshot_id",
+        "prediction_at_utc",
+        "target_at_utc",
+        "target_hour_utc",
+        "horizon_minutes",
+        "label_tolerance_minutes",
+        "target_at_local",
+        "target_local_hour",
+        "target_local_day_of_week",
+        "target_is_weekend",
+        "lag_minutes",
+        "trip_lookback_days",
+        "is_origin_usable",
+        "origin_available_at_utc",
+        "origin_reported_at_utc",
+        "origin_metadata_available_at_utc",
+        "origin_trip_station_id",
+        "origin_bikes_available",
+        "origin_docks_available",
+        "origin_capacity",
+        "origin_bike_fill_ratio",
+        "origin_report_age_seconds",
+        "lag_observation_id",
+        "lag_available_at_utc",
+        "lag_reported_at_utc",
+        "has_lag_inventory",
+        "bikes_available_lag",
+        "observed_departures_matching_hour_lookback",
+        "observed_arrivals_matching_hour_lookback",
+        "trip_history_observed_dates",
+        "trip_history_available_at_utc",
+        "trip_history_latest_event_hour_utc",
+        "has_trip_history",
+        "weather_record_id",
+        "weather_at_utc",
+        "weather_available_at_utc",
+        "weather_fetched_at_utc",
+        "has_forecast_weather",
+        "forecast_temperature_c",
+        "forecast_humidity_pct",
+        "forecast_precipitation_mm",
+        "forecast_wind_speed_kmh"
+      ]
+    },
+    "ml.mart_station_availability_labels": {
+      "rows": 15048,
+      "type": "TABLE",
+      "partition": {
+        "type": "DAY",
+        "field": "prediction_at_utc"
+      },
+      "clusters": [
+        "station_id",
+        "horizon_minutes"
+      ],
+      "columns": [
+        "prediction_id",
+        "station_id",
+        "prediction_at_utc",
+        "target_at_utc",
+        "horizon_minutes",
+        "label_tolerance_minutes",
+        "label_observation_id",
+        "label_reported_at_utc",
+        "label_available_at_utc",
+        "label_offset_seconds",
+        "target_has_bike",
+        "target_bikes_available",
+        "label_status"
+      ]
+    },
+    "ml.station_availability_training_ready": {
+      "rows": 0,
+      "type": "VIEW",
+      "partition": null,
+      "clusters": null,
+      "columns": [
+        "prediction_id",
+        "station_id",
+        "prediction_at_utc",
+        "target_at_utc",
+        "horizon_minutes",
+        "target_local_hour",
+        "target_local_day_of_week",
+        "target_is_weekend",
+        "origin_bikes_available",
+        "origin_docks_available",
+        "origin_capacity",
+        "origin_bike_fill_ratio",
+        "origin_report_age_seconds",
+        "bikes_available_lag",
+        "has_lag_inventory",
+        "observed_departures_matching_hour_lookback",
+        "observed_arrivals_matching_hour_lookback",
+        "trip_history_observed_dates",
+        "has_trip_history",
+        "forecast_temperature_c",
+        "forecast_humidity_pct",
+        "forecast_precipitation_mm",
+        "forecast_wind_speed_kmh",
+        "has_forecast_weather",
+        "target_has_bike"
+      ]
+    },
+    "ml.availability_sample_coverage": {
+      "rows": 4,
+      "type": "VIEW",
+      "partition": null,
+      "clusters": null,
+      "columns": [
+        "horizon_minutes",
+        "prediction_requests",
+        "usable_origin_requests",
+        "requests_with_lag_inventory",
+        "requests_with_trip_history",
+        "requests_with_forecast_weather",
+        "labelled_requests",
+        "training_eligible_requests",
+        "labelled_origin_times",
+        "requests_missing_labels",
+        "first_prediction_at_utc",
+        "last_prediction_at_utc"
+      ]
+    }
+  },
+  "queries": {
+    "coverage": [
+      {
+        "horizon_minutes": 60,
+        "prediction_requests": 3762,
+        "usable_origin_requests": 3712,
+        "requests_with_lag_inventory": 0,
+        "requests_with_trip_history": 1064,
+        "requests_with_forecast_weather": 1254,
+        "labelled_requests": 0,
+        "training_eligible_requests": 0,
+        "labelled_origin_times": 0,
+        "requests_missing_labels": 3762,
+        "first_prediction_at_utc": "2026-10-18 02:17:30.971872+00:00",
+        "last_prediction_at_utc": "2026-10-20 01:51:09.643110+00:00"
+      },
+      {
+        "horizon_minutes": 180,
+        "prediction_requests": 3762,
+        "usable_origin_requests": 3712,
+        "requests_with_lag_inventory": 0,
+        "requests_with_trip_history": 792,
+        "requests_with_forecast_weather": 1254,
+        "labelled_requests": 0,
+        "training_eligible_requests": 0,
+        "labelled_origin_times": 0,
+        "requests_missing_labels": 3762,
+        "first_prediction_at_utc": "2026-10-18 02:17:30.971872+00:00",
+        "last_prediction_at_utc": "2026-10-20 01:51:09.643110+00:00"
+      },
+      {
+        "horizon_minutes": 360,
+        "prediction_requests": 3762,
+        "usable_origin_requests": 3712,
+        "requests_with_lag_inventory": 0,
+        "requests_with_trip_history": 308,
+        "requests_with_forecast_weather": 1254,
+        "labelled_requests": 0,
+        "training_eligible_requests": 0,
+        "labelled_origin_times": 0,
+        "requests_missing_labels": 3762,
+        "first_prediction_at_utc": "2026-10-18 02:17:30.971872+00:00",
+        "last_prediction_at_utc": "2026-10-20 01:51:09.643110+00:00"
+      },
+      {
+        "horizon_minutes": 1440,
+        "prediction_requests": 3762,
+        "usable_origin_requests": 3712,
+        "requests_with_lag_inventory": 0,
+        "requests_with_trip_history": 1112,
+        "requests_with_forecast_weather": 1254,
+        "labelled_requests": 0,
+        "training_eligible_requests": 0,
+        "labelled_origin_times": 0,
+        "requests_missing_labels": 3762,
+        "first_prediction_at_utc": "2026-10-18 02:17:30.971872+00:00",
+        "last_prediction_at_utc": "2026-10-20 01:51:09.643110+00:00"
+      }
+    ],
+    "by_origin": [
+      {
+        "prediction_at_utc": "2026-10-18 02:17:30.971872+00:00",
+        "requests": 2508,
+        "usable_origins": 2472,
+        "with_lag": 0,
+        "with_trips": 0,
+        "with_forecast": 0
+      },
+      {
+        "prediction_at_utc": "2026-10-18 02:18:21.864578+00:00",
+        "requests": 2508,
+        "usable_origins": 2476,
+        "with_lag": 0,
+        "with_trips": 0,
+        "with_forecast": 0
+      },
+      {
+        "prediction_at_utc": "2026-10-19 17:44:08.439940+00:00",
+        "requests": 2508,
+        "usable_origins": 2480,
+        "with_lag": 0,
+        "with_trips": 0,
+        "with_forecast": 0
+      },
+      {
+        "prediction_at_utc": "2026-10-19 17:44:30.178623+00:00",
+        "requests": 2508,
+        "usable_origins": 2452,
+        "with_lag": 0,
+        "with_trips": 0,
+        "with_forecast": 0
+      },
+      {
+        "prediction_at_utc": "2026-10-20 01:50:56.182812+00:00",
+        "requests": 2508,
+        "usable_origins": 2484,
+        "with_lag": 0,
+        "with_trips": 1638,
+        "with_forecast": 2508
+      },
+      {
+        "prediction_at_utc": "2026-10-20 01:51:09.643110+00:00",
+        "requests": 2508,
+        "usable_origins": 2484,
+        "with_lag": 0,
+        "with_trips": 1638,
+        "with_forecast": 2508
+      }
+    ],
+    "feature_integrity": [
+      {
+        "feature_rows": 15048,
+        "unique_ids": 15048,
+        "future_origin_info": 0,
+        "future_weather": 0,
+        "future_trip_groups": 0,
+        "future_lag": 0
+      }
+    ],
+    "label_counts": [
+      {
+        "label_rows": 15048,
+        "observed_labels": 0,
+        "missing_labels": 15048
+      }
+    ],
+    "view_counts": [
+      {
+        "name": "requests",
+        "n": 15048
+      },
+      {
+        "name": "training",
+        "n": 0
+      }
+    ]
+  },
+  "preflight": {
+    "label_coverage": [
+      {
+        "horizon_minutes": 60,
+        "requests": 3762,
+        "usable_origins": 3712,
+        "labelled_origins": 0
+      },
+      {
+        "horizon_minutes": 180,
+        "requests": 3762,
+        "usable_origins": 3712,
+        "labelled_origins": 0
+      },
+      {
+        "horizon_minutes": 360,
+        "requests": 3762,
+        "usable_origins": 3712,
+        "labelled_origins": 0
+      },
+      {
+        "horizon_minutes": 1440,
+        "requests": 3762,
+        "usable_origins": 3712,
+        "labelled_origins": 0
+      }
+    ],
+    "source_availability": [
+      {
+        "source": "forecast_weather",
+        "earliest_available": "2026-10-20 00:57:52.293461+00:00",
+        "latest_available": "2026-10-20 01:49:02.848091+00:00"
+      },
+      {
+        "source": "trip_group",
+        "earliest_available": "2026-10-20 01:04:30.195897+00:00",
+        "latest_available": "2026-10-20 01:09:00.077972+00:00"
+      }
+    ],
+    "forecast_versions": [
+      {
+        "forecast_fetched_at_utc": null,
+        "available_at_utc": null,
+        "n": 336,
+        "first_valid": "2026-10-12 00:00:00+00:00",
+        "last_valid": "2026-10-25 23:00:00+00:00"
+      },
+      {
+        "forecast_fetched_at_utc": "2026-10-20 00:57:42.358856+00:00",
+        "available_at_utc": "2026-10-20 00:57:52.293461+00:00",
+        "n": 336,
+        "first_valid": "2026-10-13 00:00:00+00:00",
+        "last_valid": "2026-10-26 23:00:00+00:00"
+      },
+      {
+        "forecast_fetched_at_utc": "2026-10-20 01:48:54.399921+00:00",
+        "available_at_utc": "2026-10-20 01:49:02.848091+00:00",
+        "n": 336,
+        "first_valid": "2026-10-13 00:00:00+00:00",
+        "last_valid": "2026-10-26 23:00:00+00:00"
+      }
+    ]
+  },
+  "feature_ancestors": [
+    "model.bluebikes.bridge_station_ids",
+    "model.bluebikes.fct_station_inventory_history",
+    "model.bluebikes.int_availability_prediction_requests",
+    "model.bluebikes.int_trip_endpoints_hourly",
+    "model.bluebikes.stg_station_information",
+    "model.bluebikes.stg_station_status",
+    "model.bluebikes.stg_trips",
+    "model.bluebikes.stg_weather",
+    "source.bluebikes.bluebikes.historical_trips",
+    "source.bluebikes.bluebikes.station_information",
+    "source.bluebikes.bluebikes.station_status",
+    "source.bluebikes.weather.weather_hourly"
+  ],
+  "code_sha256": {
+    "models/ml/point_in_time_models.yml": "b2fbe67a241524963a7ead62f771185dc68d37c7cbdd372db1378781e351412a",
+    "models/ml/mart_station_availability_labels.sql": "4603234eac3bc11e5a4876db166cff8b0d79094514db9d517f1bb1e12769c174",
+    "models/ml/availability_sample_coverage.sql": "d846dd1f2c19a9ec31a0c63f46b034a0148f497fcd02a9908b32e4d3bc3b05b1",
+    "models/ml/station_availability_training_ready.sql": "392533afa6f2f9de053e00117da570ec3a8990856f79bd09e5a065ba5aea5474",
+    "models/marts/mart_station_availability_features.sql": "35cbb79a98da044261fcba3be53569fe517467f57317b9b9e2f1a84f53d50ac4",
+    "models/intermediate/int_availability_prediction_requests.sql": "db640b716dbb559d1ed25b5364bf2b5cc9c10377cb9256919ee12459db77fdcf",
+    "macros/validate_availability_policy.sql": "88975e3965acb6fa0978b17e1958de6cff0035630056b08ff0ff5cb743cdd649",
+    "macros/generate_schema_name.sql": "9341981daa16ab4d6d028c2df54f30e44fefdbf0ad8e78779da7fe7d5bfb132e",
+    "dbt_project.yml": "104dc67b3cb5acf1f0e4a8366b5af55f228c4cc92fbb5870c0100d59e821504c",
+    "tests/availability_insufficient_labels_warning.sql": "9b1ad26d8641321bdaf5cf4e7e3c949b9f76cc0beb4e0e6bb7ae69814d24e295",
+    "tests/availability_weather_asof_selection.sql": "2a09833708d14d432c89db1207b1f4110afc119fc001c2e9041e560dfc47ebc2",
+    "tests/availability_feature_time_contract.sql": "11600b195ebdb9a6876c0eda35bc7797136df130be030a9618d5526121289551",
+    "tests/availability_label_contract.sql": "cd31d41cd9013b5c8df92227022a2e39602c8769c6ba8ad8169c557690cf3bf2",
+    "tests/availability_source_request_coverage.sql": "366ef6d722dd968b69c367cef2a317bdf381568303e66e920867f0d34b9d3b65",
+    "tests/availability_training_and_coverage_contract.sql": "55a1ace2e26370e4e73eb4194ca36adc9bf687dd0c9ed051ae6bd002f9e8ef8d",
+    "tests/fixtures/availability_label_inventory.sql": "ef3a2900a0cff07027462ee711e7fcb09dfc3fb5faedc467a64517774485a265",
+    "tests/fixtures/availability_label_requests.sql": "6dfca27e9324f9b1dbe52abe016f4cf8547804381ba6f22e1b90984546a1a40e"
+  },
+  "test_results": [
+    {
+      "unique_id": "model.bluebikes.int_availability_prediction_requests",
+      "status": "success",
+      "failures": null,
+      "execution_time": 1.6617188453674316
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_int_availability_prediction_requests_prediction_at_utc.d2480c12b7",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.666607141494751
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_int_availability_prediction_requests_prediction_id.d8ece674ca",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.7561490535736084
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_int_availability_prediction_requests_horizon_minutes.a7b058daa2",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 3.451181173324585
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_int_availability_prediction_requests_target_at_utc.d00c4ca2da",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.503490686416626
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_int_availability_prediction_requests_station_id.7a0724c774",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.9909467697143555
+    },
+    {
+      "unique_id": "test.bluebikes.unique_int_availability_prediction_requests_prediction_id.394dcbccdc",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.7663471698760986
+    },
+    {
+      "unique_id": "unit_test.bluebikes.mart_station_availability_labels.availability_labels_window_and_quality",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 4.491528272628784
+    },
+    {
+      "unique_id": "model.bluebikes.mart_station_availability_labels",
+      "status": "success",
+      "failures": null,
+      "execution_time": 2.810573101043701
+    },
+    {
+      "unique_id": "test.bluebikes.accepted_values_mart_station_availability_labels_label_status__observed__no_usable_label_in_window.a7faf4c57f",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.675919532775879
+    },
+    {
+      "unique_id": "test.bluebikes.accepted_values_mart_station_availability_labels_target_has_bike__False__0__1.37e7ecacdb",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.5447361469268799
+    },
+    {
+      "unique_id": "test.bluebikes.availability_label_contract",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 2.327227830886841
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_mart_station_availability_labels_label_status.ab98de833e",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.5087144374847412
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_mart_station_availability_labels_prediction_id.d9809f8fa3",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.455843448638916
+    },
+    {
+      "unique_id": "test.bluebikes.unique_mart_station_availability_labels_prediction_id.d197575a61",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.3640186786651611
+    },
+    {
+      "unique_id": "model.bluebikes.mart_station_availability_features",
+      "status": "success",
+      "failures": null,
+      "execution_time": 44.96289587020874
+    },
+    {
+      "unique_id": "test.bluebikes.availability_feature_time_contract",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.4739303588867188
+    },
+    {
+      "unique_id": "test.bluebikes.availability_source_request_coverage",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 2.0292749404907227
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_mart_station_availability_features_has_forecast_weather.a6d54fd008",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.6588664054870605
+    },
+    {
+      "unique_id": "test.bluebikes.availability_weather_asof_selection",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 2.3408682346343994
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_mart_station_availability_features_has_trip_history.eef5848e43",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.3375394344329834
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_mart_station_availability_features_has_lag_inventory.887d4d4688",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.5262975692749023
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_mart_station_availability_features_is_origin_usable.d350418c72",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.2780332565307617
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_mart_station_availability_features_prediction_id.d08a60eaff",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.3164863586425781
+    },
+    {
+      "unique_id": "test.bluebikes.unique_mart_station_availability_features_prediction_id.b33ea519d7",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.6242332458496094
+    },
+    {
+      "unique_id": "model.bluebikes.station_availability_training_ready",
+      "status": "success",
+      "failures": null,
+      "execution_time": 1.0998830795288086
+    },
+    {
+      "unique_id": "model.bluebikes.availability_sample_coverage",
+      "status": "success",
+      "failures": null,
+      "execution_time": 1.1360831260681152
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_station_availability_training_ready_target_has_bike.19ac49a76b",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.3936667442321777
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_station_availability_training_ready_prediction_id.3518b353f1",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.4825348854064941
+    },
+    {
+      "unique_id": "test.bluebikes.availability_insufficient_labels_warning",
+      "status": "warn",
+      "failures": 4,
+      "execution_time": 1.5261528491973877
+    },
+    {
+      "unique_id": "test.bluebikes.unique_station_availability_training_ready_prediction_id.772b431699",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.6084790229797363
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_availability_sample_coverage_horizon_minutes.6f08ac971f",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.4717891216278076
+    },
+    {
+      "unique_id": "test.bluebikes.availability_training_and_coverage_contract",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.8683202266693115
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_availability_sample_coverage_prediction_requests.169f32b671",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.3408968448638916
+    },
+    {
+      "unique_id": "test.bluebikes.unique_availability_sample_coverage_horizon_minutes.d3fd75e946",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.1467125415802002
+    }
+  ]
+}

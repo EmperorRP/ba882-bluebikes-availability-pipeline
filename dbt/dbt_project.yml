@@ -1,0 +1,36 @@
+name: bluebikes
+version: 1.0.0
+config-version: 2
+profile: bluebikes
+require-dbt-version:
+- '>=1.10.0'
+- <2.0.0
+model-paths:
+- models
+analysis-paths:
+- analyses
+test-paths:
+- tests
+seed-paths:
+- seeds
+macro-paths:
+- macros
+snapshot-paths:
+- snapshots
+clean-targets:
+- target
+- dbt_packages
+flags:
+  send_anonymous_usage_stats: false
+vars:
+  trip_source_timezone: America/New_York
+  bluebikes_use_shared_schemas: true
+  availability_horizons_minutes:
+  - 60
+  - 180
+  - 360
+  - 1440
+  availability_label_tolerance_minutes: 15
+  availability_max_report_age_minutes: 60
+  availability_trip_lookback_days: 56
+  availability_lag_minutes: 60

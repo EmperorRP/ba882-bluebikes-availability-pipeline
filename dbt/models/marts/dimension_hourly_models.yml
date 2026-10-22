@@ -1,0 +1,70 @@
+version: 2
+models:
+  - name: dim_station
+    description: "Latest observed GBFS station metadata, one canonical station ID per row. Not historical metadata or proof of current operation."
+    columns:
+      - name: station_id
+        data_tests: [not_null, unique]
+      - name: trip_station_id
+        data_tests: [unique]
+      - name: station_name
+        data_tests: [not_null]
+      - name: latest_metadata_at_utc
+        data_tests: [not_null]
+  - name: dim_date
+    description: "Continuous New York calendar between earliest and latest dates present in staged sources. A date row does not imply source completeness."
+    columns:
+      - name: calendar_date
+        data_tests: [not_null, unique]
+      - name: date_key
+        data_tests: [not_null, unique]
+      - name: is_weekend
+        data_tests: [not_null]
+  - name: int_trip_endpoints_hourly
+    description: "Valid trip endpoints grouped by UTC hour, endpoint type, canonical/raw station IDs and mapping status; unknown stations are retained."
+    columns:
+      - name: endpoint_hour_id
+        data_tests: [not_null, unique]
+      - name: hour_at_utc
+        data_tests: [not_null]
+      - name: endpoint_type
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [departure, arrival]
+      - name: mapping_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [mapped, missing_code, unmapped_code]
+      - name: endpoint_count
+        data_tests: [not_null]
+  - name: fct_station_hourly_flows
+    description: "Mapped station/UTC-hour observed trip endpoints. Net flow = arrivals minus departures; this is not inventory change. Sparse hours are not safe to zero-fill without coverage validation. Latest-rebuilt history is not a point-in-time feature table."
+    columns:
+      - name: station_hour_id
+        data_tests: [not_null, unique]
+      - name: station_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_station')
+                field: station_id
+      - name: hour_at_utc
+        data_tests: [not_null]
+      - name: local_date
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: calendar_date
+      - name: departures
+        data_tests: [not_null]
+      - name: arrivals
+        data_tests: [not_null]
+      - name: net_flow
+        data_tests: [not_null]

@@ -1,0 +1,14 @@
+bluebikes:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('DBT_PROJECT', 'ba882-bluebikes-pipeline') }}"
+      dataset: "{{ env_var('DBT_DATASET', 'staging') }}"
+      location: US
+      threads: 2
+      priority: interactive
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+      maximum_bytes_billed: 1000000000
