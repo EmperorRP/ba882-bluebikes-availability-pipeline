@@ -66,3 +66,5 @@ jobs:
           --volume "$PWD/orchestration/astro/tests:/usr/local/airflow/tests:ro"
           bluebikes-ingestion-ci
           -m unittest discover -s /usr/local/airflow/tests -v
+      - name: Check runtime dependency consistency
+        run: docker run --rm --entrypoint python bluebikes-ingestion-ci -m pip check

@@ -2,3 +2,4 @@
 
 google-cloud-storage
 google-cloud-bigquery
+opentelemetry-api==1.42.1
