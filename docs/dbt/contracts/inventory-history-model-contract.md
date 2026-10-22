@@ -61,7 +61,7 @@ Inventory history is the source for later point-in-time feature/label models. Su
 - Latest collection: 2026-10-20 01:51:09 UTC / 2026-10-19 21:51:09 America/New_York. It is older than 120 minutes at verification.
 - dbt parse passed. The selected build created 1 table and 1 view and ran 28 data tests: 26 pass, 2 warnings, 0 failures/errors/skips. Warning rows: 14 capacity-review observations and 1 stale latest collection. CLI PASS=28 includes the two successful models.
 
-See [verification record](inventory-history-verification-2026-10-21.json) for aggregated coverage and all test results. Source-data warnings remain visible rather than changing thresholds to hide them.
+See [verification record](../evidence/inventory-history-verification-2026-10-21.json) for aggregated coverage and all test results. Source-data warnings remain visible rather than changing thresholds to hide them.
 
 ## Availability feature/label follow-up
 

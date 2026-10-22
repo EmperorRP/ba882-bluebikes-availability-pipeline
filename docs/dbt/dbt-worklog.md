@@ -3,7 +3,7 @@
 ## 2026-10-21 - foundation (DBT-01)
 
 1. Cloned main into Cloud Shell; base commit 88debb3 includes ingestion PR #13.
-2. Inspected raw data read-only and recorded the audit in raw-data-audit-2026-10-21.md.
+2. Inspected raw data read-only and recorded the audit in [the raw-data audit](raw-data-audit-2026-10-21.md).
 3. Checked ancestor/repository AGENTS.md files; none found. Repository working tree was clean before initialization.
 4. Created feature/marcus-dbt-foundation. Installed dbt in ~/.venvs/ba882-bluebikes-dbt, separate from other course environments.
 5. Added project/profile example and documented all four live raw sources and initial freshness expectations. Profile uses existing OAuth/ADC and US location.
@@ -31,7 +31,7 @@ No transformation model, table creation, scheduled job, commit, push or PR is pa
 - dbt parse: PASS. dbt build --select tag:station_foundation: exit 0, 3 models succeeded, 20 tests passed, 2 warned, 0 errors or skips.
 - Warnings: 24 suspect report records; 8 endpoint/code groups with missing/unmapped trip station IDs. Records are retained and warnings documented.
 - Live queries verified 3,135 metadata records, 3,762 status records, 627 mapping rows, and Brighton Center mapping D32028.
-- Published station-model-contract.md and updated README. Source freshness and ingestion continuity remain unresolved as documented in the audit.
+- Published [the station model contract](contracts/station-model-contract.md) and updated README. Source freshness and ingestion continuity remain unresolved as documented in the audit.
 - No commit/push, scheduling, trip/weather model or ML changes in this step.
 
 ## 2026-10-21 - trip and weather staging
@@ -57,7 +57,7 @@ Four tables created; 31 distinct data tests passed, with no unresolved failure o
 
 All 3,527,328 staged rides had valid time quality and contributed both endpoints. The intermediate preserves all 7,054,656 endpoints. The mapped fact contains 3,524,722 departures and 3,519,472 arrivals; 2,606 departure and 7,856 arrival endpoints are retained only in the intermediate because their codes are missing/unmapped. Thus aggregate mapped net flow is -5,250, an explained mapping difference.
 
-Calendar: 2025-12-31 through 2026-10-26 (300 dates, including forecast-weather dates). The mapped fact covers 620 stations and 1,737,138 observed station hours. March 8, 2026 has 23 distinct observed UTC hours and no local 02:00 rows, consistent with spring-forward handling. See dimension-hourly-verification-2026-10-21.json for counts, partitions and final test statuses.
+Calendar: 2025-12-31 through 2026-10-26 (300 dates, including forecast-weather dates). The mapped fact covers 620 stations and 1,737,138 observed station hours. March 8, 2026 has 23 distinct observed UTC hours and no local 02:00 rows, consistent with spring-forward handling. See [dimension/hourly verification evidence](evidence/dimension-hourly-verification-2026-10-21.json) for counts, partitions and final test statuses.
 
 No commit, push or PR was made. Next: inventory observation history and its quality/coverage contract, before point-in-time ML features.
 
@@ -74,7 +74,7 @@ Created fct_station_inventory_history and inventory_collection_quality in the ex
 - Latest collection: 2026-10-20 01:51:09 UTC / 2026-10-19 21:51:09 America/New_York. It is older than 120 minutes at verification.
 - dbt parse passed. The selected build created 1 table and 1 view and ran 28 data tests: 26 pass, 2 warnings, 0 failures/errors/skips. Warning rows: 14 capacity-review observations and 1 stale latest collection. CLI PASS=28 includes the two successful models.
 
-See [verification record](inventory-history-verification-2026-10-21.json) for aggregated coverage and all test results. Source-data warnings remain visible rather than changing thresholds to hide them.
+See [verification record](evidence/inventory-history-verification-2026-10-21.json) for aggregated coverage and all test results. Source-data warnings remain visible rather than changing thresholds to hide them.
 
 No source collection, model training, commit, push or PR was performed. Next: point-in-time feature/label eligibility and actual sample coverage.
 
@@ -101,7 +101,7 @@ No request has a usable 60-minute inventory lag. The first four collection origi
 
 Validation: parse passed; selected build created 2 tables and 3 views; 29 data tests ran (28 pass, 1 warning containing 4 horizons), plus 1 passing unit test. No failures/errors/skips. The independent audit found 0 future origin metadata, 0 future forecast versions, 0 future trip groups and 0 future inventory lags. Feature ancestry excludes the label model; future label provenance is absent from the training predictor view. The synthetic positive/boundary/negative label cases passed while the real label outcome columns remain null.
 
-See [verification evidence](availability-ml-verification-2026-10-21.json) for policy, code hashes, source times, exact model/test results and per-origin counts. No commit, push, PR, training, score or serving deployment was performed.
+See [verification evidence](evidence/availability-ml-verification-2026-10-21.json) for policy, code hashes, source times, exact model/test results and per-origin counts. No commit, push, PR, training, score or serving deployment was performed.
 
 Next: integrated dbt verification and reviewable ML/ingestion handoff; no automatic change to a proxy target.
 

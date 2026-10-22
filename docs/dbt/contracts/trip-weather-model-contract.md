@@ -75,7 +75,7 @@ Checks include nullability, uniqueness, rider/bike categories, mapped station re
 
 Build station/date dimensions and hourly arrivals/departures/net-flow models. Keep collection gaps and unknown mappings visible. Agree with Danish on forecast origin, target time, lag availability and weather backtesting before publishing ML features. See trip-time-evidence-2026-10-21.json for the source sample and DST counts.
 
-References: [Open-Meteo historical API](https://open-meteo.com/en/docs/historical-weather-api), [station contract](station-model-contract.md), [work log](dbt-worklog.md).
+References: [Open-Meteo historical API](https://open-meteo.com/en/docs/historical-weather-api), [station contract](station-model-contract.md), [work log](../dbt-worklog.md).
 
 ## Dimension/hourly follow-up
 

@@ -27,4 +27,4 @@ Initialize dbt, build a validated station-ID bridge, define time and snapshot-qu
 
 ## Time follow-up
 
-The subsequent trip/weather increment compared the original March CSV with BigQuery and inspected DST behavior. America/New_York is now used as an explicit evidence-backed inference, not an operator-confirmed declaration. Raw timestamps remain unchanged. See trip-weather-model-contract.md and trip-time-evidence-2026-10-21.json.
+The subsequent trip/weather increment compared the original March CSV with BigQuery and inspected DST behavior. America/New_York is now used as an explicit evidence-backed inference, not an operator-confirmed declaration. Raw timestamps remain unchanged. See [the trip/weather contract](contracts/trip-weather-model-contract.md) and [trip-time evidence](evidence/trip-time-evidence-2026-10-21.json).

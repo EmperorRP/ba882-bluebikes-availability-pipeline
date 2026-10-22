@@ -120,8 +120,8 @@ flowchart TD
 
 ## Source documents
 
-- [Architecture and MVP decision](architecture.md)
-- [Data sources](data-sources.md)
+- [Architecture and MVP decision](../architecture/README.md)
+- [Data sources](../ingestion/data-sources.md)
 - [Operations runbook](runbook.md)
 - [Ingestion implementation, PR #13](https://github.com/EmperorRP/ba882-bluebikes-availability-pipeline/pull/13)
 - [dbt implementation and handoff, PR #15](https://github.com/EmperorRP/ba882-bluebikes-availability-pipeline/pull/15)

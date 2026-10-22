@@ -54,7 +54,7 @@ Missing feature values remain null with coverage flags. Observed trip-code match
 
 When enough outcomes exist, split chronologically, group repeated source reports/overlapping observations and apply a horizon/label-window embargo. Compare persistence/seasonal and simple statistical baselines before a candidate model; report class balance, coverage and performance by horizon and station. The current empty training view must not generate accuracy claims.
 
-If the deadline requires a demand/shortage proxy, agree and name that alternative target with Rahul and Marcus, following architecture.md. It must not be described as a trained true inventory-availability classifier. This handoff does not change the target automatically.
+If the deadline requires a demand/shortage proxy, agree and name that alternative target with Rahul and Marcus, following [the architecture](../architecture/README.md). It must not be described as a trained true inventory-availability classifier. This handoff does not change the target automatically.
 
 ## Rahul and George: product and deployment boundary
 
@@ -75,7 +75,7 @@ Cloud Shell repository: /home/mshi/ba882-bluebikes-availability-pipeline.
     dbt build
     dbt source freshness
 
-A new developer should use dbt/README.md and profiles.yml.example with their own application credentials; do not copy credential files into Git. Dependencies are pinned in dbt/requirements.txt. The shared-schema variable maps explicit intermediate/marts/ml models exactly when the profile dataset is staging. For isolated work use a different target dataset/project rather than overwriting shared team relations.
+A new developer should use [the dbt setup guide](README.md) and [profiles.yml.example](../../dbt/profiles.yml.example) with their own application credentials; do not copy credential files into Git. Dependencies are pinned in dbt/requirements.txt. The shared-schema variable maps explicit intermediate/marts/ml models exactly when the profile dataset is staging. For isolated work use a different target dataset/project rather than overwriting shared team relations.
 
 The verified profile uses two threads and a 1 GB maximum bytes-billed limit per query. Keep the BigQuery location US. Build/test results and source freshness are separate: source status can correctly report ERROR STALE while model construction and data-contract tests pass. Warnings must be read and documented, not disabled to make a run green.
 
@@ -93,15 +93,15 @@ These aggregate queries report actual coverage and freshness; they do not train 
 
 ## Contracts and evidence
 
-- dbt/README.md: setup, layer commands and validation history.
-- raw-data-audit-2026-10-21.md: raw coverage and data issues.
-- station-model-contract.md: station views, ID bridge and source report quality.
-- trip-weather-model-contract.md: inferred trip timezone, trip mapping and versioned weather.
-- dimension-hourly-model-contract.md: grains, sparse trip flows and net-flow meaning.
-- inventory-history-model-contract.md: as-of metadata, strict eligibility, report repeats and gaps.
-- availability-ml-data-contract.md: feature gates, label rule, unit cases and training limits.
-- dbt-integrated-verification-2026-10-21.json: full-build/freshness evidence for this handoff.
-- dbt-worklog.md: ordered work record.
+- [dbt/README.md](README.md): setup, layer commands and validation history.
+- [raw-data-audit-2026-10-21.md](raw-data-audit-2026-10-21.md): raw coverage and data issues.
+- [station-model-contract.md](contracts/station-model-contract.md): station views, ID bridge and source report quality.
+- [trip-weather-model-contract.md](contracts/trip-weather-model-contract.md): inferred trip timezone, trip mapping and versioned weather.
+- [dimension-hourly-model-contract.md](contracts/dimension-hourly-model-contract.md): grains, sparse trip flows and net-flow meaning.
+- [inventory-history-model-contract.md](contracts/inventory-history-model-contract.md): as-of metadata, strict eligibility, report repeats and gaps.
+- [availability-ml-data-contract.md](contracts/availability-ml-data-contract.md): feature gates, label rule, unit cases and training limits.
+- [dbt-integrated-verification-2026-10-21.json](evidence/dbt-integrated-verification-2026-10-21.json): full-build/freshness evidence for this handoff.
+- [dbt-worklog.md](dbt-worklog.md): ordered work record.
 
 ## Integrated verification — 2026-10-21
 

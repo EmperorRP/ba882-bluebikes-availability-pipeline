@@ -9,7 +9,7 @@
 
 ## Time, coverage and meaning
 
-The trip interpretation inherits stg_trips' explicitly inferred America/New_York timezone (see trip-weather-model-contract.md). UTC defines hour identity; hour_at_local, local_date, local_hour and UTC offset are display attributes. During autumn fallback, equal local hours with different UTC timestamps remain separate.
+The trip interpretation inherits stg_trips' explicitly inferred America/New_York timezone (see [the trip/weather contract](trip-weather-model-contract.md)). UTC defines hour identity; hour_at_local, local_date, local_hour and UTC offset are display attributes. During autumn fallback, equal local hours with different UTC timestamps remain separate.
 
 The fact table is sparse: a row exists when at least one mapped endpoint was observed at that station/hour. A missing row does not prove zero rides. Within a present row, a zero departure/arrival count means none of that endpoint was found in currently loaded data. Completeness of source periods and station operating periods has not been established; do not build a dense zero-filled training grid from this table yet.
 
@@ -47,4 +47,4 @@ Four tables created; 31 distinct data tests passed, with no unresolved failure o
 
 All 3,527,328 staged rides had valid time quality and contributed both endpoints. The intermediate preserves all 7,054,656 endpoints. The mapped fact contains 3,524,722 departures and 3,519,472 arrivals; 2,606 departure and 7,856 arrival endpoints are retained only in the intermediate because their codes are missing/unmapped. Thus aggregate mapped net flow is -5,250, an explained mapping difference.
 
-Calendar: 2025-12-31 through 2026-10-26 (300 dates, including forecast-weather dates). The mapped fact covers 620 stations and 1,737,138 observed station hours. March 8, 2026 has 23 distinct observed UTC hours and no local 02:00 rows, consistent with spring-forward handling. See dimension-hourly-verification-2026-10-21.json for counts, partitions and final test statuses.
+Calendar: 2025-12-31 through 2026-10-26 (300 dates, including forecast-weather dates). The mapped fact covers 620 stations and 1,737,138 observed station hours. March 8, 2026 has 23 distinct observed UTC hours and no local 02:00 rows, consistent with spring-forward handling. See [dimension/hourly verification evidence](../evidence/dimension-hourly-verification-2026-10-21.json) for counts, partitions and final test statuses.
