@@ -79,6 +79,42 @@ class IngestionDagTests(unittest.TestCase):
                 half_hour_reports = [reports[0], target + timedelta(minutes=30, seconds=-30)]
                 self.assertFalse(any(target <= report <= target + timedelta(minutes=15) for report in half_hour_reports))
 
+    def test_dbt_follows_successful_weather_and_trip_loads(self):
+        cases = (
+            ("weather_ingestion_dag.py", "ingest_weather_data"),
+            ("bluebikes_trip_ingestion_dag.py", "ingest_monthly_trips"),
+        )
+        for filename, ingestion_task in cases:
+            with self.subTest(filename=filename):
+                module = load_dag_module(filename)
+                dag = module.dag
+                self.assertEqual(dag.get_task(ingestion_task).downstream_task_ids, {"check_source_freshness"})
+                self.assertEqual(dag.get_task("check_source_freshness").downstream_task_ids, {"build_warehouse"})
+                for task_id in ("check_source_freshness", "build_warehouse"):
+                    task = dag.get_task(task_id)
+                    self.assertEqual(task.queue, "dbt")
+                    self.assertEqual(task.pool, "bluebikes_dbt_build")
+                    self.assertEqual(task.trigger_rule, "all_success")
+                self.assertEqual(dag.get_task("build_warehouse").retries, 0)
+
+    def test_dbt_task_uses_bundled_safe_argument_list(self):
+        for filename in ("weather_ingestion_dag.py", "bluebikes_trip_ingestion_dag.py"):
+            with self.subTest(filename=filename):
+                module = load_dag_module(filename)
+                with patch.dict(os.environ, {"AIRFLOW_HOME": "/usr/local/airflow"}):
+                    with patch.object(module.subprocess, "run") as run:
+                        module.run_dbt_step("build", "test_dag", "manual__run;not-a-shell-command")
+                self.assertEqual(run.call_args.args[0], [
+                    sys.executable, "/usr/local/airflow/warehouse/run_dbt.py", "build",
+                    "--dag-id", "test_dag", "--run-id", "manual__run;not-a-shell-command",
+                ])
+                self.assertTrue(Path(run.call_args.args[0][1]).is_file())
+                self.assertTrue(run.call_args.kwargs["check"])
+
+    def test_snapshot_dag_does_not_rebuild_warehouse_every_five_minutes(self):
+        module = load_dag_module("bluebikes_station_snapshot_dag.py")
+        self.assertEqual(set(module.dag.task_ids), {"collect_gbfs_snapshot"})
+
 
 if __name__ == "__main__":
     unittest.main()

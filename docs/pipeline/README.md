@@ -1,5 +1,8 @@
 # Pipeline and operations
 
+- [Automated dbt orchestration](dbt-orchestration.md): task dependencies, isolated runtime, query controls and evidence capture.
+- [Operating and budget policy](operating-policy.md): approved test window and unresolved ongoing funding decision.
+
 - [Pipeline status and integration guide](pipeline-status.md): workstream status, Mermaid pipeline diagram, deployment gates, and integration sequence.
 - [Operational runbook](runbook.md): ingestion commands, runtime configuration, deployment, validation, and recovery.
 - [Architecture](../architecture/README.md): design choices and business context.

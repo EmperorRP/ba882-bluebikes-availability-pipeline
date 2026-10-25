@@ -1,0 +1,14 @@
+bluebikes:
+  target: astro
+  outputs:
+    astro:
+      type: bigquery
+      method: oauth
+      project: ba882-bluebikes-pipeline
+      dataset: staging
+      location: US
+      threads: 2
+      priority: interactive
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+      maximum_bytes_billed: 1000000000

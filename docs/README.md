@@ -4,6 +4,8 @@ Start with the [pipeline status and integration guide](pipeline/pipeline-status.
 
 For the Phase 1 data-model presentation, use the [table relationships, keys, grains and dbt lineage](architecture/data-model.md).
 
+The [Phase 1 evidence map](presentation/README.md) connects the business problem, team roles, workflows and AI-assisted validation to the later presentation.
+
 | Area | Contents |
 | --- | --- |
 | [dbt and warehouse](dbt/README.md) | Setup, model contracts, handoff, audits, work log, and verification evidence |
