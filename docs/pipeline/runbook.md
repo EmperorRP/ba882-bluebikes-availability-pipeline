@@ -2,6 +2,8 @@
 
 ## Shared deployment
 
+For the new isolated dbt image, build from the repository root using the named dbt context and deploy the prebuilt image. See [dbt orchestration](dbt-orchestration.md) for the authoritative commands, required pool and scoped permissions. The older build commands below describe the ingestion-only image and do not include dbt. See [operating policy](operating-policy.md) before waking the deployment.
+
 - GCP project: `ba882-bluebikes-pipeline`; BigQuery location: `US`.
 - Astro workspace: `BA882 Team Workspace` (`cmfsgoajd1rsx01pdcza2kkcw`).
 - Astro deployment: `BA882 Team Project` (`cmv1byju444do01pl0bhotk1f`).

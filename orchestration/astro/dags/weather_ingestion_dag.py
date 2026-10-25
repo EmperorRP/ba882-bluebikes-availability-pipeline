@@ -20,6 +20,17 @@ def run_weather_ingestion():
     )
 
 
+def run_dbt_step(command, dag_id, run_id):
+    project_root = Path(os.environ.get("AIRFLOW_HOME", "/usr/local/airflow"))
+    subprocess.run(
+        [sys.executable, str(project_root / "warehouse" / "run_dbt.py"),
+         command, "--dag-id", dag_id, "--run-id", run_id],
+        check=True,
+        cwd=str(project_root),
+        timeout=1900,
+    )
+
+
 with DAG(
     dag_id="weather_ingestion_dag",
     description="Collect Boston historical and forecast weather",
@@ -38,3 +49,19 @@ with DAG(
         task_id="ingest_weather_data",
         python_callable=run_weather_ingestion,
     )
+    source_freshness = PythonOperator(
+        task_id="check_source_freshness",
+        python_callable=run_dbt_step,
+        op_kwargs={"command": "freshness", "dag_id": "{{ dag.dag_id }}", "run_id": "{{ run_id }}"},
+        queue="dbt",
+        pool="bluebikes_dbt_build",
+    )
+    build_warehouse = PythonOperator(
+        task_id="build_warehouse",
+        python_callable=run_dbt_step,
+        op_kwargs={"command": "build", "dag_id": "{{ dag.dag_id }}", "run_id": "{{ run_id }}"},
+        queue="dbt",
+        pool="bluebikes_dbt_build",
+        retries=0,
+    )
+    ingest_weather >> source_freshness >> build_warehouse
