@@ -46,6 +46,14 @@ astro deployment wake-up cmv1byju444do01pl0bhotk1f --for 4h
 astro deploy cmv1byju444do01pl0bhotk1f --image-name bluebikes-ingestion-verified --wait
 ```
 
+On Windows, if the image push selects WSL's unavailable `/bin/bash`, prepend the installed Git Bash directory for the deployment command only:
+
+```powershell
+$env:PATH = 'C:\Program Files\Git\bin;' + $env:PATH
+```
+
+The default generated Astro integrity-test file was absent in the original project. Use the checked-in runtime tests above as deployment evidence; do not treat the CLI's skipped default test as a successful import check. CI also runs dependency consistency checks. The Google client dependencies require `opentelemetry-api==1.42.1` for compatibility with Runtime 3.3-9's existing SDK; removing that constraint caused Airflow to fail during import in the first runtime CI run.
+
 The four-hour wake period is for integration testing. It does not establish sustained collection. Agree an ongoing awake period with the course deployment administrator and its billing owner before claiming continuous ingestion. The current Tuesday-only wake schedule cannot support the collection contract.
 
 The image copies ingestion code into `/usr/local/airflow/ingestion`; tasks resolve it using `AIRFLOW_HOME`, independently of the versioned DAG bundle path. A DAG-only deployment cannot ship ingestion Python or dependency changes; deploy the image when either changes. Runtime tests mock task subprocesses and do not load cloud data.

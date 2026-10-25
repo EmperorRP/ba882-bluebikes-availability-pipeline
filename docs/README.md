@@ -2,6 +2,8 @@
 
 Start with the [pipeline status and integration guide](pipeline/pipeline-status.md) for how the workstreams fit together, deployment gates, and next steps.
 
+For the Phase 1 data-model presentation, use the [table relationships, keys, grains and dbt lineage](architecture/data-model.md).
+
 | Area | Contents |
 | --- | --- |
 | [dbt and warehouse](dbt/README.md) | Setup, model contracts, handoff, audits, work log, and verification evidence |

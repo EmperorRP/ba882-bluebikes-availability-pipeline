@@ -1,5 +1,7 @@
 # MVP Architecture and Success Criteria
 
+> This is the original proposal. The implemented ingestion cadence is five-minute GBFS, daily weather and monthly trips, not the weekly-first cadence below. See the [current integration status](../pipeline/pipeline-status.md) and [implemented data model](data-model.md) for verified implementation boundaries.
+
 ## Business problem
 
 Bluebikes riders can see current station inventory, but they cannot reliably answer a future-planning question such as:
