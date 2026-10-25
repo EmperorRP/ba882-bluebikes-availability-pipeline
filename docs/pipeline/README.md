@@ -1,5 +1,6 @@
 # Pipeline and operations
 
+- [October 25 cloud verification](evidence/verification-2026-10-25.md): actual scheduled run, warehouse outputs, label coverage and budget boundary.
 - [Automated dbt orchestration](dbt-orchestration.md): task dependencies, isolated runtime, query controls and evidence capture.
 - [Operating and budget policy](operating-policy.md): approved test window and unresolved ongoing funding decision.
 

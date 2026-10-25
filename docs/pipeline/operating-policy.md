@@ -2,8 +2,8 @@
 
 ## Confirmed on 2026-10-25
 
-- The user approved one new **up-to-four-hour** Astro verification window for the dbt deployment. Start it only after local/runtime tests are ready; record the actual override expiry in the dated evidence. This is not approval for indefinite operation.
-- The user approved Data Editor-equivalent grants on the four derived BigQuery datasets for the existing Astro workload identity. No new credential keys or project-wide editor role are authorized or needed.
+- The user approved one new **up-to-four-hour** Astro verification window for the dbt deployment. The actual override expiry was checked through the API and retained in the private audit; it has not been extended. The UI's next-event banner is not this manual override expiry. See the [public verification summary](evidence/verification-2026-10-25.md).
+- The approved Data Editor-equivalent grants were applied and verified on `staging`, `intermediate`, `marts` and `ml` for the existing Astro workload identity, preserving prior access. The one-slot dbt pool was created; the scheduled cloud build succeeded. No credential keys or project-wide editor role were created.
 - The normal enabled Astro schedule wakes Tuesday at `19:00 UTC` and hibernates at `23:00 UTC`. Its old free-text description about weekday midnight operation is inaccurate; cron expressions are authoritative. The normal schedule is not changed by this verification work.
 - The Astro organization is on a student/trial arrangement. The API reports expiry `2027-02-28T05:00:00Z`; the user sees 126 trial days remaining. Neither establishes a dollar allowance or credit balance. Billing/credits are not visible in the user's current UI access.
 - The GCP billing account name contains `QST843 $50 Fall26` and is shared with another project. Do not interpret its name as remaining funds, a BA882 allocation, or Astro credits. The Budget API is disabled; no budget API or new billable service was enabled for this task.
