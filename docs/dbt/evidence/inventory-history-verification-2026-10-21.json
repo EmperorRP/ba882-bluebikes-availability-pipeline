@@ -1,0 +1,482 @@
+{
+  "verified_on": "2026-10-21",
+  "tests": {
+    "pass": 26,
+    "warn": 2
+  },
+  "models": {
+    "success": 2
+  },
+  "tables": {
+    "marts.fct_station_inventory_history": {
+      "type": "TABLE",
+      "rows": 3762,
+      "partition": {
+        "type": "DAY",
+        "field": "snapshot_at_utc"
+      },
+      "clusters": [
+        "station_id"
+      ]
+    },
+    "marts.inventory_collection_quality": {
+      "type": "VIEW",
+      "rows": 6,
+      "partition": null,
+      "clusters": null
+    }
+  },
+  "queries": {
+    "history": [
+      {
+        "observations": 3762,
+        "stations": 627,
+        "collections": 6,
+        "usable_bike_observations": 3712,
+        "usable_dock_observations": 3712,
+        "unavailable_bike_outcomes": 50,
+        "capacity_review_count": 14,
+        "repeated_report_count": 694,
+        "regressed_report_count": 0,
+        "future_metadata_count": 0,
+        "missing_metadata_count": 0,
+        "largest_collection_gap_seconds": 141946,
+        "first_collection": "2026-10-18 02:17:30.971872+00:00",
+        "last_collection": "2026-10-20 01:51:09.643110+00:00"
+      }
+    ],
+    "quality": [
+      {
+        "snapshot_id": "425cc85796782db497d8580ad91f2c98b85fe58ce57ca687c9757d7a0a867a20",
+        "first_collected_at_utc": "2026-10-18 02:17:30.971872+00:00",
+        "last_collected_at_utc": "2026-10-18 02:17:30.971872+00:00",
+        "observation_count": 627,
+        "station_count": 627,
+        "usable_bike_observations": 618,
+        "usable_dock_observations": 618,
+        "suspect_report_time_count": 4,
+        "capacity_review_count": 2,
+        "missing_prior_metadata_count": 0,
+        "repeated_report_count": 0,
+        "regressed_report_count": 0,
+        "largest_station_collection_gap_seconds": null,
+        "is_latest_collection": false,
+        "collection_age_seconds_now": 309481,
+        "is_collection_stale_now": true
+      },
+      {
+        "snapshot_id": "4a729b766bff9af904d9fb910fc2350bc622c1d9e2294e7fb3bfec554833239c",
+        "first_collected_at_utc": "2026-10-18 02:18:21.864578+00:00",
+        "last_collected_at_utc": "2026-10-18 02:18:21.864578+00:00",
+        "observation_count": 627,
+        "station_count": 627,
+        "usable_bike_observations": 619,
+        "usable_dock_observations": 619,
+        "suspect_report_time_count": 4,
+        "capacity_review_count": 1,
+        "missing_prior_metadata_count": 0,
+        "repeated_report_count": 259,
+        "regressed_report_count": 0,
+        "largest_station_collection_gap_seconds": 50,
+        "is_latest_collection": false,
+        "collection_age_seconds_now": 309430,
+        "is_collection_stale_now": true
+      },
+      {
+        "snapshot_id": "5c14ec3a4022842176d8acabecb1925c4cd5cd3034fc88b048c6e0215e4608c7",
+        "first_collected_at_utc": "2026-10-19 17:44:08.439940+00:00",
+        "last_collected_at_utc": "2026-10-19 17:44:08.439940+00:00",
+        "observation_count": 627,
+        "station_count": 627,
+        "usable_bike_observations": 620,
+        "usable_dock_observations": 620,
+        "suspect_report_time_count": 4,
+        "capacity_review_count": 1,
+        "missing_prior_metadata_count": 0,
+        "repeated_report_count": 0,
+        "regressed_report_count": 0,
+        "largest_station_collection_gap_seconds": 141946,
+        "is_latest_collection": false,
+        "collection_age_seconds_now": 167483,
+        "is_collection_stale_now": true
+      },
+      {
+        "snapshot_id": "9150b23aaea0359f6dd400d6d9921903a30bd8e2724443eb982baf4023195ee6",
+        "first_collected_at_utc": "2026-10-19 17:44:30.178623+00:00",
+        "last_collected_at_utc": "2026-10-19 17:44:30.178623+00:00",
+        "observation_count": 627,
+        "station_count": 627,
+        "usable_bike_observations": 613,
+        "usable_dock_observations": 613,
+        "suspect_report_time_count": 4,
+        "capacity_review_count": 8,
+        "missing_prior_metadata_count": 0,
+        "repeated_report_count": 214,
+        "regressed_report_count": 0,
+        "largest_station_collection_gap_seconds": 21,
+        "is_latest_collection": false,
+        "collection_age_seconds_now": 167462,
+        "is_collection_stale_now": true
+      },
+      {
+        "snapshot_id": "2026-10-20T01:50:56.182812+00:00",
+        "first_collected_at_utc": "2026-10-20 01:50:56.182812+00:00",
+        "last_collected_at_utc": "2026-10-20 01:50:56.182812+00:00",
+        "observation_count": 627,
+        "station_count": 627,
+        "usable_bike_observations": 621,
+        "usable_dock_observations": 621,
+        "suspect_report_time_count": 4,
+        "capacity_review_count": 1,
+        "missing_prior_metadata_count": 0,
+        "repeated_report_count": 0,
+        "regressed_report_count": 0,
+        "largest_station_collection_gap_seconds": 29186,
+        "is_latest_collection": false,
+        "collection_age_seconds_now": 138276,
+        "is_collection_stale_now": true
+      },
+      {
+        "snapshot_id": "2026-10-20T01:51:09.643110+00:00",
+        "first_collected_at_utc": "2026-10-20 01:51:09.643110+00:00",
+        "last_collected_at_utc": "2026-10-20 01:51:09.643110+00:00",
+        "observation_count": 627,
+        "station_count": 627,
+        "usable_bike_observations": 621,
+        "usable_dock_observations": 621,
+        "suspect_report_time_count": 4,
+        "capacity_review_count": 1,
+        "missing_prior_metadata_count": 0,
+        "repeated_report_count": 221,
+        "regressed_report_count": 0,
+        "largest_station_collection_gap_seconds": 13,
+        "is_latest_collection": true,
+        "collection_age_seconds_now": 138262,
+        "is_collection_stale_now": true
+      }
+    ],
+    "exclusion_breakdown": [
+      {
+        "report_time_quality": "invalid_timestamp",
+        "is_renting": false,
+        "is_returning": false,
+        "capacity_check": "within_known_capacity",
+        "n": 12,
+        "usable": 0
+      },
+      {
+        "report_time_quality": "stale_report",
+        "is_renting": false,
+        "is_returning": false,
+        "capacity_check": "within_known_capacity",
+        "n": 12,
+        "usable": 0
+      },
+      {
+        "report_time_quality": "valid",
+        "is_renting": false,
+        "is_returning": false,
+        "capacity_check": "within_known_capacity",
+        "n": 12,
+        "usable": 0
+      },
+      {
+        "report_time_quality": "valid",
+        "is_renting": true,
+        "is_returning": true,
+        "capacity_check": "exceeds_known_capacity",
+        "n": 14,
+        "usable": 0
+      },
+      {
+        "report_time_quality": "valid",
+        "is_renting": true,
+        "is_returning": true,
+        "capacity_check": "within_known_capacity",
+        "n": 3712,
+        "usable": 3712
+      }
+    ],
+    "source_count": [
+      {
+        "observations": 3762
+      }
+    ]
+  },
+  "preflight": {
+    "quality": [
+      {
+        "report_time_quality": "invalid_timestamp",
+        "is_renting": false,
+        "is_returning": false,
+        "n": 12,
+        "negative_age": 0,
+        "bad_counts": 0
+      },
+      {
+        "report_time_quality": "stale_report",
+        "is_renting": false,
+        "is_returning": false,
+        "n": 12,
+        "negative_age": 0,
+        "bad_counts": 0
+      },
+      {
+        "report_time_quality": "valid",
+        "is_renting": false,
+        "is_returning": false,
+        "n": 12,
+        "negative_age": 0,
+        "bad_counts": 0
+      },
+      {
+        "report_time_quality": "valid",
+        "is_renting": true,
+        "is_returning": true,
+        "n": 3726,
+        "negative_age": 0,
+        "bad_counts": 0
+      }
+    ],
+    "batches": [
+      {
+        "snapshot_id": "425cc85796782db497d8580ad91f2c98b85fe58ce57ca687c9757d7a0a867a20",
+        "first_at": "2026-10-18 02:17:30.971872+00:00",
+        "last_at": "2026-10-18 02:17:30.971872+00:00",
+        "row_count": 627,
+        "stations": 627
+      },
+      {
+        "snapshot_id": "4a729b766bff9af904d9fb910fc2350bc622c1d9e2294e7fb3bfec554833239c",
+        "first_at": "2026-10-18 02:18:21.864578+00:00",
+        "last_at": "2026-10-18 02:18:21.864578+00:00",
+        "row_count": 627,
+        "stations": 627
+      },
+      {
+        "snapshot_id": "5c14ec3a4022842176d8acabecb1925c4cd5cd3034fc88b048c6e0215e4608c7",
+        "first_at": "2026-10-19 17:44:08.439940+00:00",
+        "last_at": "2026-10-19 17:44:08.439940+00:00",
+        "row_count": 627,
+        "stations": 627
+      },
+      {
+        "snapshot_id": "9150b23aaea0359f6dd400d6d9921903a30bd8e2724443eb982baf4023195ee6",
+        "first_at": "2026-10-19 17:44:30.178623+00:00",
+        "last_at": "2026-10-19 17:44:30.178623+00:00",
+        "row_count": 627,
+        "stations": 627
+      },
+      {
+        "snapshot_id": "2026-10-20T01:50:56.182812+00:00",
+        "first_at": "2026-10-20 01:50:56.182812+00:00",
+        "last_at": "2026-10-20 01:50:56.182812+00:00",
+        "row_count": 627,
+        "stations": 627
+      },
+      {
+        "snapshot_id": "2026-10-20T01:51:09.643110+00:00",
+        "first_at": "2026-10-20 01:51:09.643110+00:00",
+        "last_at": "2026-10-20 01:51:09.643110+00:00",
+        "row_count": 627,
+        "stations": 627
+      }
+    ],
+    "asof_metadata": [
+      {
+        "n": 3762,
+        "no_metadata": 0,
+        "nonpositive_capacity": 0,
+        "exceeds_capacity": 14
+      }
+    ],
+    "repeated_reports": [
+      {
+        "repeated_station_reports": 694,
+        "additional_collections": 694
+      }
+    ]
+  },
+  "test_results": [
+    {
+      "unique_id": "model.bluebikes.fct_station_inventory_history",
+      "status": "success",
+      "failures": null,
+      "execution_time": 3.8189663887023926
+    },
+    {
+      "unique_id": "test.bluebikes.accepted_values_fct_station_inventory_history_inventory_counts_quality__missing_counts__negative_counts__valid.1c6f0dc572",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.6462509632110596
+    },
+    {
+      "unique_id": "test.bluebikes.accepted_values_fct_station_inventory_history_capacity_check__unknown_capacity__nonpositive_capacity__invalid_counts__exceeds_known_capacity__within_known_capacity.1436e0d341",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.796403169631958
+    },
+    {
+      "unique_id": "test.bluebikes.inventory_capacity_review_warning",
+      "status": "warn",
+      "failures": 14,
+      "execution_time": 1.391145944595337
+    },
+    {
+      "unique_id": "test.bluebikes.accepted_values_fct_station_inventory_history_report_time_quality__invalid_timestamp__future_report__stale_report__valid.8f4066bb9f",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.7661054134368896
+    },
+    {
+      "unique_id": "test.bluebikes.inventory_history_contract",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.6182942390441895
+    },
+    {
+      "unique_id": "test.bluebikes.inventory_source_reconciliation",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.7871999740600586
+    },
+    {
+      "unique_id": "test.bluebikes.inventory_metadata_asof",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 3.5021092891693115
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_inventory_history_capacity_check.6e7e3e4abe",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.3257811069488525
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_inventory_history_collection_local_date.0442e08a5a",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.5677244663238525
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_inventory_history_inventory_counts_quality.d36789f72d",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.832925796508789
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_inventory_history_inventory_observation_id.5e59abcd4c",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.3743870258331299
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_inventory_history_is_bike_observation_usable.2a77940a19",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.2794373035430908
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_inventory_history_is_dock_observation_usable.37d307b2b7",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.4389965534210205
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_inventory_history_report_time_quality.39062d35a9",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.6586081981658936
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_inventory_history_snapshot_at_utc.857a4cf466",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.8492672443389893
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_inventory_history_snapshot_id.e3ff3c75da",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.390779733657837
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_inventory_history_source_available_at_utc.e18096a544",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.3883485794067383
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_fct_station_inventory_history_station_id.5195493082",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.8640990257263184
+    },
+    {
+      "unique_id": "test.bluebikes.relationships_fct_station_inventory_history_collection_local_date__calendar_date__ref_dim_date_.5c51f4b020",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.436697006225586
+    },
+    {
+      "unique_id": "test.bluebikes.unique_fct_station_inventory_history_inventory_observation_id.a38ad0428e",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.3977465629577637
+    },
+    {
+      "unique_id": "model.bluebikes.inventory_collection_quality",
+      "status": "success",
+      "failures": null,
+      "execution_time": 1.2185115814208984
+    },
+    {
+      "unique_id": "test.bluebikes.inventory_latest_collection_freshness_warning",
+      "status": "warn",
+      "failures": 1,
+      "execution_time": 1.5213780403137207
+    },
+    {
+      "unique_id": "test.bluebikes.inventory_collection_reconciliation",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.6654646396636963
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_inventory_collection_quality_is_collection_stale_now.000e5254e1",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.4625778198242188
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_inventory_collection_quality_is_latest_collection.912c1de477",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.5542268753051758
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_inventory_collection_quality_observation_count.97670eafca",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.3102362155914307
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_inventory_collection_quality_snapshot_id.2d6bcdb9d4",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.9876246452331543
+    },
+    {
+      "unique_id": "test.bluebikes.not_null_inventory_collection_quality_station_count.1dc9366480",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.5231659412384033
+    },
+    {
+      "unique_id": "test.bluebikes.unique_inventory_collection_quality_snapshot_id.0836bf0a9e",
+      "status": "pass",
+      "failures": 0,
+      "execution_time": 1.8615834712982178
+    }
+  ]
+}

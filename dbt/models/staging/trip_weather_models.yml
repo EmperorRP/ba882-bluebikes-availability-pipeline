@@ -1,0 +1,122 @@
+version: 2
+models:
+  - name: stg_trips
+    description: One completed ride, retaining missing station mappings and raw timestamps. UTC interpretation uses the explicit inferred Boston local-clock contract.
+    config:
+      meta:
+        grain: ride_id
+        timezone_status: inferred_from_csv_and_dst
+        timestamp_encoding: local_clock_stored_as_utc_in_raw
+    columns:
+      - name: ride_id
+        data_tests: [not_null, unique]
+      - name: rideable_type
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['classic_bike', 'electric_bike']
+      - name: rider_type
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['member', 'casual']
+      - name: raw_started_at
+        description: Original raw TIMESTAMP; its UTC clock characters preserve the unzoned CSV value. Do not use as an event instant.
+      - name: raw_ended_at
+        description: Original raw TIMESTAMP, retained for audit.
+      - name: started_at_local
+        description: Recovered CSV wall-clock datetime in the configured source timezone.
+      - name: ended_at_local
+        description: Recovered CSV wall-clock datetime, before timezone interpretation.
+      - name: started_at_utc
+        description: UTC instant under the documented source timezone inference.
+        data_tests: [not_null]
+      - name: ended_at_utc
+        data_tests: [not_null]
+      - name: duration_seconds
+        description: Elapsed seconds after timezone conversion, including milliseconds and DST changes.
+      - name: source_timezone
+        description: Defaults to America/New_York through trip_source_timezone.
+      - name: timezone_basis
+        description: Explicitly inferred from original CSV and DST behavior; not an operator-confirmed timezone declaration.
+      - name: trip_time_quality
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['valid', 'missing_time', 'nonexistent_local_time', 'ambiguous_local_time', 'negative_duration']
+      - name: start_station_id
+        description: Canonical GBFS ID, nullable when the source code is missing/unmapped. Mapping is latest-known, not historized.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('bridge_station_ids')
+                field: station_id
+      - name: end_station_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('bridge_station_ids')
+                field: station_id
+      - name: start_mapping_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['mapped', 'missing_code', 'unmapped_code']
+      - name: end_mapping_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['mapped', 'missing_code', 'unmapped_code']
+      - name: ingested_at_utc
+        data_tests: [not_null]
+  - name: stg_weather
+    description: Hourly weather retaining historical data and every forecast fetch version. Legacy unversioned records stay visible and ineligible for future-forecast use.
+    config:
+      meta:
+        grain: weather_at_utc + source_type + forecast_fetched_at_utc
+    columns:
+      - name: weather_record_id
+        data_tests: [not_null, unique]
+      - name: weather_at_utc
+        description: Valid time from the provider Unix timestamp; original JSON specifies GMT/UTC.
+        data_tests: [not_null]
+      - name: weather_at_local
+        description: America/New_York display datetime; use UTC for joins.
+      - name: source_type
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['historical', 'forecast_api']
+      - name: temperature_c
+        description: Degrees Celsius.
+        data_tests: [not_null]
+      - name: humidity_pct
+        description: Relative humidity percent, 0-100.
+        data_tests: [not_null]
+      - name: precipitation_mm
+        description: Millimetres for the provider hourly period.
+        data_tests: [not_null]
+      - name: wind_speed_kmh
+        description: Kilometres per hour.
+        data_tests: [not_null]
+      - name: forecast_fetched_at_utc
+        description: Raw forecast_issued_at is collector fetch time, not provider issuance time. NULL for historical and legacy rows.
+      - name: ingested_at_utc
+        description: Collector ingestion time; NULL in 336 legacy forecast rows.
+      - name: available_at_utc
+        description: Conservative pipeline availability time; historical ingestion or max(forecast fetch, ingestion). NULL for unversioned forecast rows.
+      - name: is_future_at_available_time
+        description: Future valid time relative to this version's availability. An as-of prediction join must additionally require available_at_utc <= forecast origin.
+      - name: weather_temporal_role
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['historical_reanalysis', 'unversioned_forecast', 'past_or_current_at_fetch', 'future_at_fetch']
+      - name: forecast_metadata_quality
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['not_applicable', 'missing_fetch_time', 'missing_ingestion_time', 'fetch_after_ingestion', 'valid']

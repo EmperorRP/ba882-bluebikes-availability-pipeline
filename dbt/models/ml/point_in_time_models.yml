@@ -1,0 +1,80 @@
+version: 2
+models:
+  - name: int_availability_prediction_requests
+    description: "One actual station collection origin per configured forecast horizon. No synthetic dense inventory grid."
+    columns:
+      - name: prediction_id
+        data_tests: [not_null, unique]
+      - name: station_id
+        data_tests: [not_null]
+      - name: prediction_at_utc
+        data_tests: [not_null]
+      - name: target_at_utc
+        data_tests: [not_null]
+      - name: horizon_minutes
+        data_tests: [not_null]
+  - name: mart_station_availability_features
+    description: "Features gated by warehouse source availability at each prediction origin. Optional missing inventory lags, raw-code trip profiles and forecast weather remain null; source lineage is audit-only."
+    columns:
+      - name: prediction_id
+        data_tests: [not_null, unique]
+      - name: is_origin_usable
+        data_tests: [not_null]
+      - name: has_lag_inventory
+        data_tests: [not_null]
+      - name: has_trip_history
+        data_tests: [not_null]
+      - name: has_forecast_weather
+        data_tests: [not_null]
+  - name: mart_station_availability_labels
+    description: "Earliest usable station report in the target observation window. Nullable binary bike-availability outcome; never fill unavailable labels with zero. Future outcome lineage stays out of the feature model."
+    columns:
+      - name: prediction_id
+        data_tests: [not_null, unique]
+      - name: target_has_bike
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+                quote: false
+      - name: label_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [observed, no_usable_label_in_window]
+  - name: station_availability_training_ready
+    description: "Usable-origin labelled rows only, with explicit predictors, evaluation keys and primary target. An empty result is valid when coverage is insufficient; it is surfaced as a warning. No training or metrics are produced."
+    columns:
+      - name: prediction_id
+        data_tests: [not_null, unique]
+      - name: target_has_bike
+        data_tests: [not_null]
+  - name: availability_sample_coverage
+    description: "Requests, optional feature coverage, actual labels and training-eligible rows by forecast horizon. Not an assertion of statistical adequacy."
+    columns:
+      - name: horizon_minutes
+        data_tests: [not_null, unique]
+      - name: prediction_requests
+        data_tests: [not_null]
+unit_tests:
+  - name: availability_labels_window_and_quality
+    description: "Positive and negative synthetic cases: fresh label, repeated report, old report, bad observation, missing station and inclusive window boundary."
+    model: mart_station_availability_labels
+    config:
+      tags: [point_in_time_ml]
+    given:
+      - input: ref('int_availability_prediction_requests')
+        format: sql
+        fixture: availability_label_requests
+      - input: ref('fct_station_inventory_history')
+        format: sql
+        fixture: availability_label_inventory
+    expect:
+      rows:
+        - {prediction_id: P1, target_has_bike: 1, label_observation_id: good, label_status: observed}
+        - {prediction_id: P2, target_has_bike: null, label_observation_id: null, label_status: no_usable_label_in_window}
+        - {prediction_id: P3, target_has_bike: null, label_observation_id: null, label_status: no_usable_label_in_window}
+        - {prediction_id: P4, target_has_bike: 0, label_observation_id: boundary, label_status: observed}
+        - {prediction_id: P5, target_has_bike: null, label_observation_id: null, label_status: no_usable_label_in_window}
+        - {prediction_id: P6, target_has_bike: 1, label_observation_id: five_minute_after, label_status: observed}

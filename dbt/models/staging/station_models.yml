@@ -1,0 +1,79 @@
+version: 2
+models:
+  - name: stg_station_information
+    description: One station metadata record per station_id and snapshot_id; preserves all observed collection batches.
+    config:
+      meta:
+        grain: station_id + snapshot_id
+    columns:
+      - name: station_id
+        description: Canonical GBFS station ID, preserved as a string.
+        data_tests: [not_null]
+      - name: snapshot_id
+        description: Opaque collection identifier; hashes and timestamp strings coexist.
+        data_tests: [not_null]
+      - name: trip_station_id
+        description: GBFS short_name; joins trip start/end station codes, not GBFS station_id.
+        data_tests: [not_null]
+      - name: snapshot_at_utc
+        description: UTC metadata collection time, copied from raw ingested_at_utc.
+        data_tests: [not_null]
+      - name: snapshot_at_local
+        description: America/New_York wall-clock datetime; not a unique event key across DST changes.
+      - name: capacity
+        description: Reported station capacity; zero is allowed for operational states.
+        data_tests: [not_null]
+  - name: stg_station_status
+    description: One inventory observation per station_id and snapshot_id; stale and unavailable records are retained with quality flags.
+    config:
+      meta:
+        grain: station_id + snapshot_id
+    columns:
+      - name: station_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('bridge_station_ids')
+                field: station_id
+      - name: snapshot_id
+        data_tests: [not_null]
+      - name: snapshot_at_utc
+        description: Actual collection time, not source report time or a rounded 30-minute schedule time.
+        data_tests: [not_null]
+      - name: snapshot_at_local
+        description: America/New_York wall-clock datetime for display.
+      - name: bikes_available
+        data_tests: [not_null]
+      - name: docks_available
+        data_tests: [not_null]
+      - name: source_last_reported
+        description: Original Unix seconds, including source sentinel values.
+      - name: reported_at_utc
+        description: Range-checked timestamp conversion; original sentinel timestamps remain visible.
+      - name: report_age_seconds
+        description: Collection time minus report time; may be negative or very large for anomalous reports.
+      - name: report_time_quality
+        description: Invalid before 2020 or unconvertible; future beyond 5-minute tolerance; stale beyond 60 minutes at collection.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['valid', 'invalid_timestamp', 'future_report', 'stale_report']
+      - name: is_usable_inventory_observation
+        description: Valid report at collection with renting enabled, valid counts and identifiers. Does not assert current source freshness.
+      - name: has_bike_observed
+        description: Observed bikes >= 1 only for usable records; otherwise NULL. This is not a future forecast label.
+  - name: bridge_station_ids
+    description: Latest-known one-to-one map from trip short codes to canonical GBFS IDs. Not a historized or as-of dimension.
+    config:
+      meta:
+        grain: station_id
+    columns:
+      - name: station_id
+        data_tests: [not_null, unique]
+      - name: trip_station_id
+        data_tests: [not_null, unique]
+      - name: first_observed_at_utc
+        description: Earliest metadata collection in this pipeline, not the station opening date.
+      - name: latest_metadata_at_utc
+        description: Collection time of metadata used for the mapping.

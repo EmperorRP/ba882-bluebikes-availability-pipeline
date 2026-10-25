@@ -2,7 +2,7 @@
 
 > **Purpose:** one living view of how the Bluebikes workstreams connect, what is actually running, and what must happen next.
 >
-> **Last verified:** 2026-10-22 (Eastern Time)  
+> **Last verified:** 2026-10-25 (Eastern Time)
 > **Update this file:** when a PR is merged, an Astro deployment changes, a scheduled run is verified, or a dependency/blocker changes. Do not label a component **Running** based only on local or Cloud Shell validation.
 
 ## Status legend
@@ -61,11 +61,11 @@ flowchart LR
 
 | Layer | Current state | Evidence | Dependency / next decision |
 | --- | --- | --- | --- |
-| Source ingestion | **Running during four-hour verification** | [PR #17](https://github.com/EmperorRP/ba882-bluebikes-availability-pipeline/pull/17) merged and deployed on 2026-10-22; all three DAGs have successful scheduled runs. | Observe additional scheduled intervals; agree the ongoing awake window and budget. |
-| Raw data | **Refreshing in cloud** | Eight station-status collections and 5,018 rows were verified at 15:49 UTC, advancing from six collections / 3,762 rows; weather refreshes also succeeded. | Continue monitoring source report times, collection gaps and forecast versions. |
-| Astronomer deployment | **Healthy; time-limited verification** | `BA882 Team Project` is healthy with the deployed image and bundle listed below, three unpaused DAGs and no import errors. | Wake override ends 2026-10-22 at 19:43 UTC / 3:43 PM America/New_York. The previous hibernation policy then resumes. |
-| dbt / BigQuery modeling | **In review** | [PR #15](https://github.com/EmperorRP/ba882-bluebikes-availability-pipeline/pull/15) is a draft. It reports 16 models built, 134 passing tests, 6 documented warnings, and one passing unit test in Cloud Shell. | Review and merge PR #15; then add `dbt build` and freshness checks to the shared orchestration. |
-| Availability labels | **Blocked** | PR #15 reports zero matched real labels and zero training-ready rows for the current 1/3/6/24-hour horizons. | Collect sustained station snapshots; review label tolerance, sampling windows, and horizon policy before ML training. |
+| Source ingestion | **Deployed; currently asleep** | PR #17 ran successfully during the October 22 four-hour test. Current inspection confirms Astro is hibernating. | A new four-hour dbt verification window is approved; ongoing collection remains a budget decision. |
+| Raw data | **Cloud-loaded; not continuously refreshing** | October 22 run IDs and advancing collection timestamps are preserved below. | Recheck raw freshness and collection coverage during the next approved window. |
+| Astronomer deployment | **Hibernating** | Image `deploy-2026-10-22T15-45-18` is deployed. The normal enabled wake schedule is Tuesday 19:00–23:00 UTC only. | A trial expiry is not a credit balance; confirm the student allowance with the course/Astro organization owner before extending operation. |
+| dbt / BigQuery modeling | **Merged and independently validated; not orchestrated yet** | PRs #15 and #18 merged on October 22. Independent build: 16 models, 134 passing data tests, six warnings, one passing SQL unit test. | Add scoped deployment permissions, isolated dbt dependencies, source freshness, scheduled builds and evidence capture. |
+| Availability labels | **Rebuild and coverage audit required** | On October 25, the shared coverage view still reflects origins through October 20 and reports zero labels/training rows. These marts have not incorporated the later cloud collection window. | Rebuild before interpreting coverage; distinguish an outdated derived table from missing raw observations. |
 | ML | **Planned** | No trained availability model, evaluation, score, or deployment is currently delivered. | Use a chronological split with an embargo for overlapping horizons; compare seasonal/persistence and simple statistical baselines before a candidate model. |
 | Analytics app / dashboard | **Planned** | No deployed dashboard or forecast-serving contract is currently delivered. | Start after consumer-ready marts and a clear observed-vs-predicted data contract are available. |
 
@@ -85,8 +85,8 @@ The following are **code declarations**, not proof of a running schedule. The DA
 
 ```mermaid
 flowchart TD
-    A[Review PRs 15 and 18] --> B[Merge dbt layer to main]
-    C[Astro ingestion deployed<br/>four-hour verification] --> E[Workload identity granted<br/>for raw GCS and BigQuery]
+    A[PRs 15 and 18 merged] --> B[dbt layer validated]
+    C[Astro ingestion deployed<br/>currently hibernating] --> E[Workload identity granted<br/>for raw GCS and BigQuery]
     E --> F[All ingestion DAGs unpaused<br/>first scheduled runs succeeded]
     F --> G[Verify raw freshness and lineage]
     B --> H[Orchestrate dbt build and freshness]
@@ -111,7 +111,8 @@ flowchart TD
 
 ### Before ML training
 
-- [ ] PR #15 is merged and `dbt build` / `dbt source freshness` run in the shared pipeline.
+- [x] PRs #15 and #18 are merged.
+- [ ] `dbt build` and source freshness run in the deployed shared pipeline.
 - [ ] Station snapshots span enough continuous time to produce real labels across intended horizons and class balance.
 - [ ] Feature/label availability is point-in-time safe; forecast rows are selected by information known at prediction time.
 - [ ] The team approves horizons, label tolerance, sampling policy, and chronological train/validation/test split.
@@ -119,8 +120,10 @@ flowchart TD
 
 ## Source documents
 
-- [Architecture and MVP decision](architecture.md)
-- [Data sources](data-sources.md)
+- [Implemented data model: relationships, keys and grains](../architecture/data-model.md)
+
+- [Architecture and MVP decision](../architecture/README.md)
+- [Data sources](../ingestion/data-sources.md)
 - [Operations runbook](runbook.md)
 - [Ingestion implementation, PR #13](https://github.com/EmperorRP/ba882-bluebikes-availability-pipeline/pull/13)
 - [dbt implementation and handoff, PR #15](https://github.com/EmperorRP/ba882-bluebikes-availability-pipeline/pull/15)
@@ -131,7 +134,7 @@ Live BigQuery checks confirmed 3,762 raw station-status rows across six collecti
 
 PR #17 implemented five-minute GBFS collection, daily weather at 06:00 UTC, explicit UTC DAG starts, ingestion paths independent of Airflow 3 DAG bundles, interval-based monthly trip selection and real-runtime CI tests. It also pinned the OpenTelemetry API to the runtime-compatible version after CI reproduced an Airflow import failure with unconstrained Google dependencies. Five-minute polling addresses a concrete mismatch: a source report just before a target is excluded, while the next half-hour report can fall beyond the 15-minute label window.
 
-See [runbook](runbook.md) for local authentication, scoped ingestion identity permissions, validation/deployment commands and acceptance checks. PR #15 remains a draft dependency for automated dbt builds. Current collection and coverage checks must be repeated after deployment.
+See [runbook](runbook.md) for local authentication, scoped ingestion identity permissions, validation/deployment commands and acceptance checks. PR #15 and its regression follow-up #18 are now merged. Automated dbt deployment and a fresh coverage audit remain integration work.
 
 ### Deployment and warehouse evidence
 
@@ -147,7 +150,7 @@ See [runbook](runbook.md) for local authentication, scoped ingestion identity pe
 - After the cloud runs, `dbt source freshness` passed for station information, station status and forecast weather at approximately `15:50:14 UTC`. Trips still have no agreed freshness SLA and are excluded from that three-source check. Forecast fetch/ingestion times advanced to `15:49:23 UTC` / `15:49:30 UTC`.
 - Independent dbt rebuild in isolated `review_rahul_20261022*` datasets reproduced 16 successful models, 134 passing data tests, six documented warnings and one passing expanded SQL unit test. [PR #18](https://github.com/EmperorRP/ba882-bluebikes-availability-pipeline/pull/18) adds that evidence, polling regression fixtures and credential-free dbt parse CI to Marcus's feature branch.
 
-The wake override expires at `2026-10-22T19:43:08Z` (3:43 PM EDT); it has not been extended. This verifies deployed ingestion during a bounded window, not a semester-long operating schedule. `architecture.md` retains the original weekly-first proposal; the collection cadence above is the tested refinement, with an ongoing budget/awake policy still to be agreed. Shared dbt marts are not yet refreshed automatically, and training remains blocked by coverage and ML policy review.
+The wake override expires at `2026-10-22T19:43:08Z` (3:43 PM EDT); it has not been extended. This verifies deployed ingestion during a bounded window, not a semester-long operating schedule. [The architecture proposal](../architecture/README.md) retains the original weekly-first proposal; the collection cadence above is the tested refinement, with an ongoing budget/awake policy still to be agreed. Shared dbt marts are not yet refreshed automatically, and training remains blocked by coverage and ML policy review.
 
 ## Change log
 
@@ -155,3 +158,9 @@ The wake override expires at `2026-10-22T19:43:08Z` (3:43 PM EDT); it has not be
 | --- | --- |
 | 2026-10-22 | Created the integration guide. Recorded merged ingestion code, draft dbt layer, and verified Astro deployment gap. |
 | 2026-10-22 | Merged/deployed PR #17 for the approved four-hour window; verified all ingestion DAGs and advancing raw data. Independently reproduced the dbt build and opened regression/CI follow-up PR #18. |
+
+## Phase 1 reconciliation — 2026-10-25
+
+PR #19 was reconciled with the documentation reorganization. Its October 22 deployment evidence is historical, not a claim that the deployment is currently awake. The earlier readiness audit above describes the state before that deployment. Current scheduling, dbt integration and budget decisions are tracked in the workstream table.
+
+The architecture proposal's weekly-first cadence is superseded by the implemented five-minute GBFS, daily forecast and monthly trip schedules. Those schedules only execute while Astro is available. No ongoing budget or continuous wake period has been approved.

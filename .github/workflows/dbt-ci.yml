@@ -1,0 +1,35 @@
+name: dbt parse
+
+on:
+  pull_request:
+    paths:
+      - "dbt/**"
+      - ".github/workflows/dbt-ci.yml"
+      - ".github/dbt-profiles/**"
+  push:
+    branches: [main]
+    paths:
+      - "dbt/**"
+      - ".github/workflows/dbt-ci.yml"
+      - ".github/dbt-profiles/**"
+
+permissions:
+  contents: read
+
+jobs:
+  parse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: dbt/requirements.txt
+      - run: python -m pip install -r dbt/requirements.txt
+      - run: python -m pip check
+      - name: Parse models, tests, and unit-test fixtures without cloud credentials
+        working-directory: dbt
+        run: dbt parse --profiles-dir ../.github/dbt-profiles --no-partial-parse
+        env:
+          DBT_SEND_ANONYMOUS_USAGE_STATS: "false"
