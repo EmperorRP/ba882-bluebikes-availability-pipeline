@@ -2,6 +2,8 @@
 
 This is an evidence map and outline for the later presentation, not a finished slide deck or submission. Deliver the final deck and <=3-page writeup as PDFs or shared Google files. The presentation is approximately ten minutes plus questions.
 
+**Verified October 25:** the [public verification summary](../pipeline/evidence/verification-2026-10-25.md) is ready. Detailed cloud audits and [original Graph/Grid screenshots](evidence/README.md) are retained locally, not published, at the user's request. The deployed weather chain built 16 models with 135 passing data tests, five warnings and one passing SQL unit test. Ongoing runtime funding, sufficient training coverage, the final deck and the <=3-page writeup remain open.
+
 ## Narrative and supporting material
 
 | Topic | What to explain/show | Evidence |
@@ -11,7 +13,7 @@ This is an evidence map and outline for the later presentation, not a finished s
 | Team responsibilities | Separate ingestion, warehouse, ML, app and integration work; show review/integration boundaries | Role summary below and [dbt handoff](../dbt/dbt-handoff-2026-10-21.md) |
 | Data model | Station/date dimensions, hourly flows, observed inventory, as-of features and nullable labels | [Relationship diagrams, grains and keys](../architecture/data-model.md) |
 | Deployed workflow | Five-minute snapshots; daily weather and monthly trips followed by freshness and dbt | [Orchestration](../pipeline/dbt-orchestration.md), actual Astro Graph/Grid/run IDs and logs |
-| Input/output validation | Raw batches/timestamps, source freshness, model/test results, label coverage and known warnings | Dated cloud evidence and [independent October 22 review](../dbt/polling-label-review-2026-10-22.md) |
+| Input/output validation | Raw batches/timestamps, source freshness, model/test results, label coverage and known warnings | [October 25 cloud audit](../pipeline/evidence/verification-2026-10-25.md) and [independent October 22 review](../dbt/polling-label-review-2026-10-22.md) |
 | AI collaboration | CLI access, code/document review, explicit approvals, testing and independent output checks | AI workflow below; GitHub PRs and cloud evidence |
 | Look ahead | Cloud reporting, bounded collection, chronological ML evaluation and clearly labelled prediction/proxy scope | [Operating policy](../pipeline/operating-policy.md) and coverage audit |
 

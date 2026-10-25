@@ -6,6 +6,8 @@ For the Phase 1 data-model presentation, use the [table relationships, keys, gra
 
 The [Phase 1 evidence map](presentation/README.md) connects the business problem, team roles, workflows and AI-assisted validation to the later presentation.
 
+The [October 25 public verification summary](pipeline/evidence/verification-2026-10-25.md) covers the scheduled dbt build, aggregate warehouse coverage and operating limitations. Detailed audits and original screenshots remain local at the user's request.
+
 | Area | Contents |
 | --- | --- |
 | [dbt and warehouse](dbt/README.md) | Setup, model contracts, handoff, audits, work log, and verification evidence |
