@@ -52,8 +52,10 @@ A DAG-only deploy cannot ship dbt models, the runner or dependencies. Rebuild an
 - BigQuery location: `US`; target staging dataset: `staging`; the checked-in schema macro resolves the shared `intermediate`, `marts` and `ml` datasets.
 - The identity has project BigQuery Job User, dataset-scoped write access on `raw`, `staging`, `intermediate`, `marts` and `ml`, and Object Creator on the raw bucket. Existing grants are preserved. No project-wide Editor/Owner or service-account key is needed.
 - Create the `bluebikes_dbt_build` pool with one slot before running the new tasks. A missing pool leaves tasks unable to run; verify it in Airflow rather than assuming its presence.
-- Two dbt threads; one query retry; 300-second query execution timeout; 1,000,000,000 maximum bytes billed **per query**. These are not a whole-run dollar cap, total billing cap or credit balance.
+- Two dbt threads; one query retry; 300-second query execution timeout; 5,000,000,000 maximum bytes billed **per query** in production and the developer example. Credential-free CI retains its 1 GB ceiling. These are not a whole-run dollar cap, total billing cap or credit balance.
 - The runner has a 30-minute subprocess timeout, and the outer Airflow call has a 1,900-second timeout. Each attempt uses its own temporary target/log directories.
+
+The original 1 GB ceiling blocked a growing validation query. A bounded 5 GB ceiling retains the tests and fail-fast behavior while permitting that query to execute. Failed builds can leave models at different refresh times; verify the complete build artifact before using a new training export. Monitor query growth before increasing the ceiling further.
 
 ## Evidence and failure behavior
 
