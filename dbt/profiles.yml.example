@@ -11,4 +11,4 @@ bluebikes:
       priority: interactive
       job_execution_timeout_seconds: 300
       job_retries: 1
-      maximum_bytes_billed: 1000000000
+      maximum_bytes_billed: 5000000000
