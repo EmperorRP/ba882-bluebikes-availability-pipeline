@@ -3,7 +3,17 @@
     cluster_by=['station_id','horizon_minutes']) }}
 -- Origins are actual warehouse collection times; optional missing features remain NULL.
 with requests as (select * from {{ ref('int_availability_prediction_requests') }}),
-lagged as (
+-- Deduplicate equal availability times using the same ID tie-break as the old as-of join.
+lag_history as (
+    select * from {{ ref('fct_station_inventory_history') }}
+    where source_available_at_utc is not null
+    qualify row_number() over(partition by station_id, source_available_at_utc
+        order by inventory_observation_id desc)=1
+), lag_intervals as (
+    select *, lead(source_available_at_utc) over(partition by station_id
+        order by source_available_at_utc) as next_available_at_utc
+    from lag_history
+), lagged as (
     select p.prediction_id, h.inventory_observation_id as lag_observation_id,
         h.source_available_at_utc as lag_available_at_utc,
         h.reported_at_utc as lag_reported_at_utc,
@@ -11,10 +21,11 @@ lagged as (
             timestamp_sub(p.prediction_at_utc,interval {{ var('availability_lag_minutes') }} minute),h.reported_at_utc,second
         ) between 0 and {{ var('availability_max_report_age_minutes') }}*60,false) as has_lag_inventory,
         h.bikes_available as lag_bikes
-    from requests p left join {{ ref('fct_station_inventory_history') }} h
+    from requests p left join lag_intervals h
       on p.station_id=h.station_id
       and h.source_available_at_utc<=timestamp_sub(p.prediction_at_utc,interval {{ var('availability_lag_minutes') }} minute)
-    qualify row_number() over(partition by p.prediction_id order by h.source_available_at_utc desc,h.inventory_observation_id desc)=1
+      and (h.next_available_at_utc is null or
+        timestamp_sub(p.prediction_at_utc,interval {{ var('availability_lag_minutes') }} minute)<h.next_available_at_utc)
 ), trip_profile as (
     -- Match original trip codes to the code known at the origin, never to a future GBFS bridge.
     -- Whole-hour groups are withheld until their latest contributing ingestion is available.
