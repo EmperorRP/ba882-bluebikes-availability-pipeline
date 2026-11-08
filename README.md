@@ -27,11 +27,17 @@ Implementation dependencies and setup commands will be defined in OPS-01. Keep c
 
 Initial issues are ARCH-01, ING-01 through ING-03, WH-01, DBT-01, ML-01, APP-01, OPS-01, and DOC-01. Current data-layer delivery and ingestion/ML responsibilities are documented in the [dbt handoff](docs/dbt/dbt-handoff-2026-10-21.md).
 
-## Current verified status (2026-10-25)
+## Current verified status (2026-11-07)
+
+Station snapshots have been collected every five minutes, 24/7, since 2026-10-29 10:24 America/New_York, with one 562-minute gap on Nov 2. Collection is confirmed through **2026-11-11**. The scheduled dbt build refreshed the shared marts on Nov 7. Training-ready labels now span about 2,400 distinct origin times over 9–12 Boston dates per horizon, with a no-bike share of about 7%.
+
+ML scope: the target is at least one bike available. **24 h is the primary horizon**, and 1, 3 and 6 h are secondary. All four come from the existing dbt horizons. See the [November 7 audit](docs/pipeline/evidence/verification-2026-11-07.md).
+
+## Phase 1 verification (2026-10-25)
 
 Cloud ingestion and automated dbt are deployed to Astro from reviewed commit `476856c` (PR #20). The actual scheduled weather chain completed ingestion -> source freshness -> warehouse build: 16 models, 135 passing data tests, five warnings, one passing SQL unit test and three passing source-freshness checks. Station snapshots repeat every five minutes while awake; dbt runs after daily weather and monthly trips, not after every snapshot.
 
-Only an up-to-four-hour verification window was approved; ongoing funding and continuous operation are not approved. The rebuilt marts contain eligible 1/3-hour labels, but only one Boston origin date and no 6/24-hour labels; ML and the dashboard remain future work. See the [public verification summary](docs/pipeline/evidence/verification-2026-10-25.md), [model relationships/keys/grains](docs/architecture/data-model.md), [operating decision](docs/pipeline/operating-policy.md) and [presentation evidence map](docs/presentation/README.md). Detailed cloud audits and screenshots remain local at the user's request.
+At that time, only an up-to-four-hour verification window was approved. The rebuilt marts contained eligible 1/3-hour labels, but only one Boston origin date and no 6/24-hour labels. The continuous collection described above has since superseded this. See the [public verification summary](docs/pipeline/evidence/verification-2026-10-25.md), [model relationships/keys/grains](docs/architecture/data-model.md), [operating decision](docs/pipeline/operating-policy.md) and [presentation evidence map](docs/presentation/README.md). Detailed cloud audits and screenshots remain local at the user's request.
 
 ## Historical data-layer status (2026-10-21)
 

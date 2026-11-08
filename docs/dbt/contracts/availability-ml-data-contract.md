@@ -16,7 +16,7 @@ All datasets are US. The two new tables are partitioned by UTC prediction date a
 
 The following dbt variables are initial engineering defaults, not a final ML-01/product agreement:
 
-- availability_horizons_minutes: [60, 180, 360, 1440] (1, 3, 6, 24 hours).
+- availability_horizons_minutes: [60, 180, 360, 1440] (1, 3, 6, 24 hours). As of 2026-11-07, 24 h is the primary ML horizon and 1/3/6 h are secondary.
 - availability_label_tolerance_minutes: 15, after the target instant only, inclusive at both ends.
 - availability_max_report_age_minutes: 60; it can tighten, but cannot relax the inventory history's existing strict eligibility.
 - availability_lag_minutes: 60.
@@ -61,7 +61,7 @@ The verification JSON records policy, relation sizes, source availability, featu
 
 ## ML handoff and limits
 
-The initial real inventory consists of six irregular collections. The coverage audit must be consulted before model fitting; a large feature-row count is not a labelled sample count. No labels are fabricated, no model is trained and no accuracy metrics or production forecasts are claimed.
+The initial real inventory consisted of six irregular collections. Continuous collection has run since 2026-10-29; see the [Nov 7 audit](../../pipeline/evidence/verification-2026-11-07.md) for current label coverage by horizon. The coverage audit must be consulted before model fitting; a large feature-row count is not a labelled sample count. No labels are fabricated, no model is trained and no accuracy metrics or production forecasts are claimed.
 
 Danish should review horizon/tolerance/freshness choices, predictor selection, missing-feature policy and the true target versus a separately named demand/shortage proxy. Use chronological evaluation with source-report groups and a horizon/label-window embargo to prevent overlapping observations crossing splits. Preserve the input/config/code version for each experiment. IDs, raw timestamps and provenance are evaluation/audit keys, not a blanket SELECT * predictor list. Continuous GBFS collection and sufficient labelled history are prerequisites for a defensible availability backtest. Arbitrary live request serving and production deployment remain separate work.
 

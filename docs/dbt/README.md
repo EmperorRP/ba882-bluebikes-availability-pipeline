@@ -92,7 +92,7 @@ See [inventory history contract](contracts/inventory-history-model-contract.md) 
 
 ## Availability features and labels
 
-See [availability ML data contract](contracts/availability-ml-data-contract.md) and [verification evidence](evidence/availability-ml-verification-2026-10-21.json). After upstream models exist, run `dbt build --select tag:point_in_time_ml`. Initial configurable policy: 1/3/6/24-hour horizons, 15-minute post-target label tolerance, 60-minute report age/lag and 56-day observed trip-code history. Five relations were created; 28 data tests and 1 synthetic unit test passed, with 1 explicit zero-label warning. The real feature/label tables each contain 15,048 requests but ZERO real outcomes and ZERO training-eligible rows. This is a data foundation, not a trained or deployable availability model.
+See [availability ML data contract](contracts/availability-ml-data-contract.md) and [verification evidence](evidence/availability-ml-verification-2026-10-21.json). After upstream models exist, run `dbt build --select tag:point_in_time_ml`. Configurable policy: 1/3/6/24-hour horizons (24 h is the primary ML horizon), 15-minute post-target label tolerance, 60-minute report age/lag and 56-day observed trip-code history. Five relations were created; 28 data tests and 1 synthetic unit test passed, with 1 explicit zero-label warning. The real feature/label tables each contain 15,048 requests but ZERO real outcomes and ZERO training-eligible rows. This is a data foundation, not a trained or deployable availability model.
 
 ## Integrated verification and handoff
 

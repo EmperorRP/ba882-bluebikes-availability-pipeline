@@ -1,5 +1,6 @@
 # Deployed pipeline evidence
 
+- [November 7 continuous collection and label coverage audit](verification-2026-11-07.md)
 - [October 25 verification and interpretation](verification-2026-10-25.md)
 - [Screenshot privacy notes](../../presentation/evidence/README.md)
 

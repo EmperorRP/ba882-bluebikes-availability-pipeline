@@ -64,25 +64,25 @@ flowchart LR
 
 | Layer | Current state | Evidence | Dependency / next decision |
 | --- | --- | --- | --- |
-| Source ingestion | **Running during bounded verification** | Repeated scheduled station runs and the scheduled weather chain succeeded October 25. Monthly ingestion succeeded October 22; its new downstream chain is deployed/runtime-tested, not separately cloud-rerun today. | No ongoing collection approval beyond the bounded override. |
-| Raw data | **Refreshing during verification** | Audit at 15:33 UTC: 36,418 status rows/58 collections, 35,791 information rows/57 collections, 3,527,328 trips and 9,336 weather rows. | Collection gaps during sleep cannot be backfilled from live GBFS. |
-| Astronomer deployment | **Healthy at verification; budget-gated afterward** | Reviewed revision `476856c`; zero import errors. Normal Tuesday 19:00–23:00 UTC policy is unchanged. Detailed deployment identifiers are retained in the private audit. | Confirm actual student allowance/balance with course/Astro billing owner; the UI next-event banner is not the manual override expiry. |
+| Source ingestion | **Running continuously through 2026-11-11** | Five-minute station snapshots every day since 2026-10-29 10:24 America/New_York ([Nov 7 audit](evidence/verification-2026-11-07.md)). Monthly ingestion succeeded October 22. | Collection is confirmed through Nov 11. Record the actual stop time and any gaps when it ends. |
+| Raw data | **Continuous since Oct 29; one gap** | 288 collections per full day (about 628 stations each). Only gap: Nov 2 09:30–18:52 local (562 minutes). | Missed snapshots cannot be backfilled from live GBFS. |
+| Astronomer deployment | **Collecting continuously through 2026-11-11** | Reviewed revision `476856c` verified October 25; daily dbt builds continue (latest marts refresh Nov 7 06:08 UTC). Detailed deployment identifiers are retained in the private audit. | Return to the normal wake policy after Nov 11 unless the team extends it. |
 | dbt / BigQuery modeling | **Merged, deployed and cloud-verified** | PR #20: scheduled weather ingestion -> freshness -> build succeeded. 16 models, 135 passing data tests, 5 warnings, 1 passing SQL unit test; all 3 freshness checks passed. | Daily analytical refresh, not a live serving layer. Keep warnings visible and establish operating coverage. |
-| Availability labels | **1/3-hour labels present; temporal coverage insufficient** | Rebuilt shared marts: 22,341 eligible rows at 1 hour and 7,431 at 3 hours, but only one Boston origin date; zero 6/24-hour labels. | Thousands of station rows are not independent temporal samples. Approve continuous collection and review split/embargo and class balance before training. |
-| ML | **Planned** | No trained availability model, evaluation, score, or deployment is currently delivered. | Use a chronological split with an embargo for overlapping horizons; compare seasonal/persistence and simple statistical baselines before a candidate model. |
+| Availability labels | **1/3/6/24 h labels with multi-day coverage** | Nov 7: 24 h has 1,219,419 eligible rows over 1,986 origin times; 1 h has 1,499,372 over 2,430; 3 h has 1,438,722 over 2,334; 6 h has 1,377,517 over 2,237. No-bike share is about 7%. | Rows from one collection are not independent, so use a chronological split with an embargo of at least 24 h for the primary horizon. |
+| ML | **Ready to start** | Scope: at least one bike available; 24 h is the primary horizon and 1/3/6 h are secondary. No trained model, evaluation or deployment yet. | Use a chronological split with an embargo for overlapping horizons; compare seasonal/persistence and simple statistical baselines before a candidate model. |
 | Analytics app / dashboard | **Planned** | No deployed dashboard or forecast-serving contract is currently delivered. | Start after consumer-ready marts and a clear observed-vs-predicted data contract are available. |
 
 ## Current schedules and required changes
 
-The following are **UTC code schedules**. October 25 execution is evidenced separately; scheduled declarations do not establish continuous operation while Astro hibernates.
+The following are **UTC code schedules**. Continuous execution from Oct 29 is evidenced in the [Nov 7 audit](evidence/verification-2026-11-07.md). Scheduled declarations do not run while Astro hibernates.
 
 | Workflow | Current schedule | Assessment | Recommended target |
 | --- | --- | --- | --- |
-| GBFS station snapshots | `*/5 * * * *` UTC | Deployed in PR #17; five-minute collection provides opportunities inside the 15-minute label window despite report lag. | Sustain collection beyond the verification window, subject to the course budget. |
+| GBFS station snapshots | `*/5 * * * *` UTC | Deployed in PR #17; five-minute collection provides opportunities inside the 15-minute label window despite report lag. | Running continuously through 2026-11-11. |
 | Weather ingestion | `0 6 * * *` UTC | Deployed in PR #17; daily refresh aligns with the dbt forecast-freshness warning at 36 hours and error at 48 hours. | Separate historical backfills from forecast refresh as a follow-up optimization. |
 | Historical trips | `0 6 10 * *` | Monthly source cadence is appropriate, assuming the source archive is available by then. | Keep monthly and add a retry/alert path for delayed source publication. |
 | dbt build and freshness | After daily weather and monthly trips | Deployed via PR #20; actual weather chain succeeded October 25. One-slot pool; no full rebuild after each five-minute snapshot. | Maintain daily plus monthly cadence while awake; monitor freshness, failures and query usage. |
-| ML retraining | Not implemented | Labels exist at 1/3 hours, but temporal coverage and longer horizons remain inadequate. | Weekly only after coverage thresholds and split policy are approved. |
+| ML retraining | Not implemented | Labels exist at 1/3/6/24 h with multi-day coverage. Collection ends Nov 11, so the training set is fixed after that. | Train on the collected window; retraining only if collection resumes. |
 
 ## Integration sequence
 
@@ -105,7 +105,7 @@ flowchart TD
 
 ### Before calling the pipeline deployed
 
-- [ ] An ongoing awake policy supports every intended run after the four-hour test window.
+- [x] An awake policy supports every intended run during the collection period (continuous Oct 29 – Nov 11).
 - [x] The `main` DAG bundle has a deployed version matching the reviewed code merged to `main`.
 - [x] The Astro workload identity has scoped ingestion access to the raw GCS bucket and BigQuery dataset.
 - [x] All three ingestion DAGs appear in Airflow, are unpaused, and have at least one successful scheduled run.
@@ -116,7 +116,7 @@ flowchart TD
 
 - [x] PRs #15 and #18 are merged.
 - [x] `dbt build` and source freshness run in the deployed shared pipeline.
-- [ ] Station snapshots span enough continuous time to produce real labels across intended horizons and class balance.
+- [x] Station snapshots span enough continuous time to produce real labels across intended horizons and class balance (Nov 7 audit).
 - [ ] Feature/label availability is point-in-time safe; forecast rows are selected by information known at prediction time.
 - [ ] The team approves horizons, label tolerance, sampling policy, and chronological train/validation/test split.
 - [ ] Baseline metrics and coverage by station and horizon are reported.
@@ -163,6 +163,7 @@ The wake override expires at `2026-10-22T19:43:08Z` (3:43 PM EDT); it has not be
 | --- | --- |
 | 2026-10-22 | Created the integration guide. Recorded merged ingestion code, draft dbt layer, and verified Astro deployment gap. |
 | 2026-10-22 | Merged/deployed PR #17 for the approved four-hour window; verified all ingestion DAGs and advancing raw data. Independently reproduced the dbt build and opened regression/CI follow-up PR #18. |
+| 2026-11-07 | Recorded continuous collection since Oct 29 (confirmed through Nov 11), multi-day label coverage and the PR #23 lag-join check. Set 24 h as the primary ML horizon, with 1/3/6 h secondary. |
 
 ## Phase 1 reconciliation — 2026-10-25
 
@@ -170,4 +171,8 @@ PR #19 was reconciled with the documentation reorganization. Its October 22 depl
 
 PR #20 subsequently deployed the automated warehouse build during the approved October 25 window. The scheduled weather chain passed, repeated station collection was observed, and shared marts were rebuilt and audited. The previous zero-label derived coverage was outdated: real 1/3-hour labels now exist, but their temporal coverage is still insufficient. The October 22 sections remain historical; use the current table and [October 25 audit](evidence/verification-2026-10-25.md) for the latest verification.
 
-The architecture proposal's weekly-first cadence is superseded by the implemented five-minute GBFS, daily forecast and monthly trip schedules. Those schedules only execute while Astro is available. No ongoing budget or continuous wake period has been approved.
+The architecture proposal's weekly-first cadence is superseded by the implemented five-minute GBFS, daily forecast and monthly trip schedules. Those schedules only execute while Astro is available. At this point, no ongoing budget or continuous wake period had been approved.
+
+## Continuous collection — 2026-11-07
+
+Continuous five-minute collection began 2026-10-29 10:24 America/New_York and is confirmed through 2026-11-11. PRs #22 and #23 (Nov 2) raised the dbt per-query byte ceiling to 5 GB and replaced the lag as-of join with an interval join so that builds keep up with the growing history. The [Nov 7 audit](evidence/verification-2026-11-07.md) records the collection coverage, label counts by horizon and an old-vs-new lag-join check with zero mismatches. 24 h is the primary ML horizon, with 1/3/6 h secondary, all from the existing dbt horizons.
