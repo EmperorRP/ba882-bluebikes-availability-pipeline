@@ -23,11 +23,5 @@ from eval_rows e
 left join station_hour_prior sh using (station_id, target_local_hour)
 left join station_prior s using (station_id)
 cross join global_prior g
-union all
-select 'logreg', split, prediction_id, station_id, no_bike,
-  (select prob from unnest(predicted_no_bike_probs) where label = 1)
-from ml.predict(model `${project}.${dataset}.logreg_h${horizon_minutes}`, (select * from eval_rows))
-union all
-select 'boosted', split, prediction_id, station_id, no_bike,
-  (select prob from unnest(predicted_no_bike_probs) where label = 1)
-from ml.predict(model `${project}.${dataset}.boosted_h${horizon_minutes}`, (select * from eval_rows));
+-- One ML.PREDICT block per model listed in the `models` parameter (rendered by bqml.py).
+${model_predictions};

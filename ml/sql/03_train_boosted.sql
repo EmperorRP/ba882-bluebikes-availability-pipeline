@@ -1,5 +1,7 @@
 -- Main candidate: gradient-boosted trees (XGBoost inside BigQuery ML).
 -- station_id is target-encoded (fit on training rows only). Early stopping uses the val rows.
+-- Cost control: trains on every ${boosted_origin_step}th five-minute origin slot only (scoring still uses all rows).
+-- The first full-data run (32 iterations) billed 45 GB.
 create or replace model `${project}.${dataset}.boosted_h${horizon_minutes}`
 options (
   model_type = 'BOOSTED_TREE_CLASSIFIER',
@@ -8,14 +10,16 @@ options (
   data_split_col = 'is_eval',
   category_encoding_method = 'TARGET_ENCODING',
   tree_method = 'HIST',
-  max_iterations = 300,
-  learn_rate = 0.1,
+  -- Run 1 (learn_rate 0.1, min_rel_progress 0.001) stopped at iteration 32 while still improving,
+  -- leaving probabilities far too low. A larger step reaches a good fit in fewer (billed) iterations.
+  max_iterations = 80,
+  learn_rate = 0.3,
   max_tree_depth = 6,
   subsample = 0.8,
   colsample_bytree = 0.8,
   l2_reg = 1.0,
   early_stop = true,
-  min_rel_progress = 0.001,
+  min_rel_progress = 0.0002,
   enable_global_explain = true
 ) as
 select
@@ -43,4 +47,5 @@ select
   forecast_precipitation_mm,
   forecast_wind_speed_kmh
 from `${project}.${dataset}.split_h${horizon_minutes}`
-where split in ('train', 'val');
+where split in ('train', 'val')
+  and mod(div(extract(minute from prediction_at_utc), 5), ${boosted_origin_step}) = 0;

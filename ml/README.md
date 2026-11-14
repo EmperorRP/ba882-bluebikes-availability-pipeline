@@ -6,7 +6,7 @@ ML-01 defines the target and forecast horizon, compares persistence/seasonal bas
 
 - **Target:** `target_has_bike`, meaning the station has at least one bike of any type available at the target time. Docks are not predicted. Models predict the complement, `no_bike = 1 - target_has_bike`, because the no-bike case is the one riders care about.
 - **Horizons:** **24 hours (1440 minutes) is the primary horizon.** 1, 3 and 6 hours (60, 180 and 360 minutes) are secondary.
-- **Data window:** continuous five-minute snapshots from 2026-10-29 10:24 to 2026-11-09 18:55 America/New_York. Collection has ended. There is one gap on Nov 2 from 09:30 to 18:52 local. The features/labels marts were last built on Nov 8, so 24 h origins currently end on Nov 7 00:55 local. A rerun of `dbt build` extends them to about Nov 8 18:55.
+- **Data window:** continuous five-minute snapshots from 2026-10-29 10:24 to 2026-11-09 18:55 America/New_York. Collection has ended. There is one gap on Nov 2 from 09:30 to 18:52 local. The marts were fully rebuilt on 2026-11-14 01:28 UTC, so 24 h origins run through Nov 8 18:50 local (1.70M rows).
 - **Input:** `ml.station_availability_training_ready`. The no-bike share is about 6.5% and varies by day (4–9%).
 - **Evaluation:** chronological split with an embargo of at least the horizon plus the 15-minute label window between train and test (just over 24 h for the primary horizon). Rows from the same collection are not independent samples.
 

@@ -26,13 +26,28 @@ DEFAULTS = {
     "val_hours": "24",
     # Must match dbt var availability_label_tolerance_minutes.
     "label_tolerance_minutes": "15",
+    # Boosted-tree training keeps every Nth five-minute origin slot (3 = every 15 min).
+    # Adjacent snapshots are near-duplicates, and boosted-tree training is billed per
+    # byte processed at a much higher rate than ordinary queries.
+    "boosted_origin_step": "3",
+    # Comma-separated models scored in 04_score (each must exist as {name}_h{horizon}).
+    "models": "logreg,boosted",
 }
 
 STEPS = sorted(p.stem for p in SQL_DIR.glob("*.sql"))
 
+_PREDICT_BLOCK = """union all
+select '{name}', split, prediction_id, station_id, no_bike,
+  (select prob from unnest(predicted_no_bike_probs) where label = 1)
+from ml.predict(model `{project}.{dataset}.{name}_h{horizon_minutes}`, (select * from eval_rows))"""
+
 
 def render(step: str, **overrides: object) -> str:
     params = {**DEFAULTS, **{k: str(v) for k, v in overrides.items() if v is not None}}
+    params["model_predictions"] = "\n".join(
+        _PREDICT_BLOCK.format(name=name.strip(), **params)
+        for name in params["models"].split(",") if name.strip()
+    )
     template = string.Template((SQL_DIR / f"{step}.sql").read_text(encoding="utf-8"))
     return template.substitute(params)
 
