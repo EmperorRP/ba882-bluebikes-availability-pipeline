@@ -2,10 +2,50 @@
 
 ML-01 defines the target and forecast horizon, compares persistence/seasonal baselines with a candidate model, uses chronological evaluation, and versions training inputs and artifacts. Deploy the selected model and define weekly retraining and rollback criteria.
 
-## Scope (2026-11-07)
+## Scope (2026-11-07, data window updated 2026-11-13)
 
-- **Target:** `target_has_bike`, meaning the station has at least one bike of any type available at the target time. Docks are not predicted.
+- **Target:** `target_has_bike`, meaning the station has at least one bike of any type available at the target time. Docks are not predicted. Models predict the complement, `no_bike = 1 - target_has_bike`, because the no-bike case is the one riders care about.
 - **Horizons:** **24 hours (1440 minutes) is the primary horizon.** 1, 3 and 6 hours (60, 180 and 360 minutes) are secondary.
-- **Data window:** continuous five-minute snapshots from 2026-10-29 10:24 America/New_York through 2026-11-11, with one gap on Nov 2 from 09:30 to 18:52 local. Earlier scattered collections (Oct 17–25) are also present. Decide whether to include them before building the split.
-- **Input:** `ml.station_availability_training_ready`. Current coverage is in the [Nov 7 audit](../docs/pipeline/evidence/verification-2026-11-07.md). The no-bike share is about 7%.
-- **Evaluation:** chronological split with an embargo of at least the horizon plus the 15-minute label window between train and test (just over 24 h for the primary horizon). 24 h origins run from Oct 29 to Nov 10, about 12 days, so a 24 h embargo uses up a noticeable share of the data. Rows from the same collection are not independent samples.
+- **Data window:** continuous five-minute snapshots from 2026-10-29 10:24 to 2026-11-09 18:55 America/New_York. Collection has ended. There is one gap on Nov 2 from 09:30 to 18:52 local. The features/labels marts were last built on Nov 8, so 24 h origins currently end on Nov 7 00:55 local. A rerun of `dbt build` extends them to about Nov 8 18:55.
+- **Input:** `ml.station_availability_training_ready`. The no-bike share is about 6.5% and varies by day (4–9%).
+- **Evaluation:** chronological split with an embargo of at least the horizon plus the 15-minute label window between train and test (just over 24 h for the primary horizon). Rows from the same collection are not independent samples.
+
+## Approach: compute on BigQuery, orchestrate with Airflow
+
+Training, scoring and evaluation all run inside BigQuery as SQL (BigQuery ML). No data leaves the warehouse. Airflow only runs the SQL steps in order. Outputs go to the `ml_models` dataset, which is separate from the dbt-managed `ml` dataset, so dbt rebuilds never touch models.
+
+| Step | File | Output in `ml_models` |
+|---|---|---|
+| 1. Chronological split | `sql/01_split.sql` | `split_h{H}`: rows labelled `train` / `val` / `test` |
+| 2. Logistic regression | `sql/02_train_logreg.sql` | model `logreg_h{H}` |
+| 3. Boosted trees (XGBoost) | `sql/03_train_boosted.sql` | model `boosted_h{H}` |
+| 4. Score models + baselines | `sql/04_score.sql` | `scores_h{H}` |
+| 5. Metrics | `sql/05_metrics.sql` | `metrics_h{H}` |
+
+`{H}` is the horizon in minutes. The split is data-driven:
+- **test:** the last `test_hours` (36) of origins
+- **val:** `val_hours` (24) of origins ending one embargo before test
+- **train:** everything whose labels close one embargo before val
+
+Model choices and the decision threshold are made on **val**. **Test** is only used for the final report.
+
+Baselines:
+- **persistence:** no bike now → no bike at the target time. At 24 h this is the same as "same time yesterday".
+- **station_hour_prior:** the station's no-bike rate at that hour of day, computed on train only.
+
+Metrics are for the no-bike class:
+- **average precision** (area under the precision–recall curve): the main ranking metric
+- **F1 / precision / recall** at the threshold that maximises F1 on val, applied unchanged to test
+- **Brier score:** how accurate the probabilities are
+
+Accuracy is not reported, because always predicting "has a bike" already scores about 95%.
+
+### Running manually
+
+`ml/bqml.py` fills the template parameters and prints SQL. Pass the SQL to `bq` on stdin, because `bq` treats a query that starts with `--` as a flag:
+
+```bash
+python ml/bqml.py 01_split --horizon-minutes 1440 | bq query --use_legacy_sql=false
+```
+
+Run steps 01 → 05 in order. Any parameter in `DEFAULTS` can be overridden, for example `--horizon-minutes 60` for the 1 h model.
