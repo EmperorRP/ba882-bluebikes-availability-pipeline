@@ -30,6 +30,8 @@ DEFAULTS = {
     # Adjacent snapshots are near-duplicates, and boosted-tree training is billed per
     # byte processed at a much higher rate than ordinary queries.
     "boosted_origin_step": "3",
+    # Rider-facing metric: how many of the top-K stations flagged at each prediction time were really empty.
+    "top_k": "50",
     # Comma-separated models scored in 04_score (each must exist as {name}_h{horizon}).
     "models": "logreg,boosted",
 }

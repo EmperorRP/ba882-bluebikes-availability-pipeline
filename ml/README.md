@@ -49,3 +49,24 @@ python ml/bqml.py 01_split --horizon-minutes 1440 | bq query --use_legacy_sql=fa
 ```
 
 Run steps 01 → 05 in order. Any parameter in `DEFAULTS` can be overridden, for example `--horizon-minutes 60` for the 1 h model.
+
+## Results (2026-11-13, test = last 36 h of origins, ~260K rows, 4.9% no-bike)
+
+Avg. precision is the area under the precision–recall curve for the no-bike class; random guessing scores 0.05. Top-50 precision: at each prediction time, the share of the 50 stations ranked most at risk that really had no bike. The best possible top-50 precision is about 0.57, because some prediction times have fewer than 50 empty stations.
+
+| Horizon | Best model | Avg. precision | Top-50 precision | Persistence AP | Persistence top-50 |
+|---|---|---|---|---|---|
+| 1 h | logreg | 0.590 | 0.411 | 0.404 | 0.357 |
+| 3 h | logreg | 0.376 | 0.316 | 0.215 | 0.257 |
+| 6 h | logreg | 0.259 | 0.264 | 0.128 | 0.189 |
+| **24 h** | **boosted** | **0.230** | **0.241** | 0.095 | 0.149 |
+
+24 h model history (test average precision):
+- logreg: 0.139
+- \+ station history features: 0.158
+- boosted tree, station_id target-encoded: 0.149 (over-fit and badly calibrated)
+- boosted tree, history features, no station_id: **0.230**
+
+The station history features are the largest single improvement. Validation-day scores are lower than test scores (for example, 24 h boosted scores 0.147 on val), so day-to-day variance is large with about 10 days of data.
+
+Cost: each 24 h boosted-tree run bills about 14 GB (on 15-minute-thinned origins). Logistic regression bills about 0.2 GB.

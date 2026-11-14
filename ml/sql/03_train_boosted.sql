@@ -1,5 +1,7 @@
 -- Main candidate: gradient-boosted trees (XGBoost inside BigQuery ML).
--- station_id is target-encoded (fit on training rows only). Early stopping uses the val rows.
+-- Early stopping uses the val rows. station_id is deliberately excluded: run 2 target-encoded it and
+-- over-fit after 14 iterations (probabilities ~3x too low); the station history features describe each
+-- station point-in-time instead.
 -- Cost control: trains on every ${boosted_origin_step}th five-minute origin slot only (scoring still uses all rows).
 -- The first full-data run (32 iterations) billed 45 GB.
 create or replace model `${project}.${dataset}.boosted_h${horizon_minutes}`
@@ -8,7 +10,6 @@ options (
   input_label_cols = ['no_bike'],
   data_split_method = 'CUSTOM',
   data_split_col = 'is_eval',
-  category_encoding_method = 'TARGET_ENCODING',
   tree_method = 'HIST',
   -- Run 1 (learn_rate 0.1, min_rel_progress 0.001) stopped at iteration 32 while still improving,
   -- leaving probabilities far too low. A larger step reaches a good fit in fewer (billed) iterations.
@@ -25,7 +26,6 @@ options (
 select
   no_bike,
   split = 'val' as is_eval,
-  station_id,
   target_local_hour,
   target_local_day_of_week,
   target_is_weekend,
