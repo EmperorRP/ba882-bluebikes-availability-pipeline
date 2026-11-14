@@ -23,5 +23,9 @@ from eval_rows e
 left join station_hour_prior sh using (station_id, target_local_hour)
 left join station_prior s using (station_id)
 cross join global_prior g
+union all
+-- Rule: how often this station was empty at the target hour on earlier days (point-in-time, no training).
+select 'station_history_rule', split, prediction_id, station_id, no_bike, coalesce(hist_empty_rate_target_hour, 0)
+from eval_rows
 -- One ML.PREDICT block per model listed in the `models` parameter (rendered by bqml.py).
 ${model_predictions};

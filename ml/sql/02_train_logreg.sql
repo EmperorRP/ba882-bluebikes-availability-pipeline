@@ -35,6 +35,13 @@ select
   forecast_temperature_c,
   forecast_humidity_pct,
   forecast_precipitation_mm,
-  forecast_wind_speed_kmh
+  forecast_wind_speed_kmh,
+  hist_empty_rate_target_hour,
+  hist_empty_rate_target_hour_7d,
+  hist_empty_rate_target_hour_daytype,
+  hist_mean_bikes_target_hour,
+  hist_target_hour_days,
+  recent_empty_rate_24h,
+  recent_min_mean_bikes_24h
 from `${project}.${dataset}.split_h${horizon_minutes}`
 where split in ('train', 'val');
