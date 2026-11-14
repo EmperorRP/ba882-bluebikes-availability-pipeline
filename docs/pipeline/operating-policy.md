@@ -1,5 +1,11 @@
 # Operating window and budget decision
 
+## Current collection period (updated 2026-11-07)
+
+Continuous five-minute station collection has run since **2026-10-29 10:24 America/New_York** and is confirmed through **2026-11-11**. This is the bounded continuous collection period described under "Proposed ongoing policy" below, with a recorded stop date. After Nov 11, the deployment returns to the normal wake policy unless the team extends the period. Record the actual stop time, collection gaps and the final dbt build when it ends. See the [Nov 7 audit](evidence/verification-2026-11-07.md).
+
+The sections below record the October 25 decision state and remain as history.
+
 ## Confirmed on 2026-10-25
 
 - The user approved one new **up-to-four-hour** Astro verification window for the dbt deployment. The actual override expiry was checked through the API and retained in the private audit; it has not been extended. The UI's next-event banner is not this manual override expiry. See the [public verification summary](evidence/verification-2026-10-25.md).
@@ -22,6 +28,6 @@ For a cost estimate, distinguish deployment awake-hours, worker usage, networkin
 
 ## Presentation wording
 
-"Cloud ingestion and warehouse transformation were deployed and demonstrated during an approved time-limited window. Ongoing availability is budget-gated. Live station observations missed during sleep cannot be backfilled; our current collection coverage and training readiness are reported separately."
+"Cloud ingestion and warehouse transformation run on Astro. We collected live station snapshots every five minutes, around the clock, from October 29 to November 11, which gives about two weeks of continuous data for training and chronological evaluation. Live station observations missed outside that window cannot be backfilled."
 
 [dbt orchestration](dbt-orchestration.md) · [Current pipeline status](pipeline-status.md)

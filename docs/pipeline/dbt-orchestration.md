@@ -21,7 +21,7 @@ The two downstream task chains are implemented in the existing weather and trip 
 
 Station snapshots remain every five minutes, but the warehouse is not rebuilt every five minutes. Daily weather refresh triggers the regular build; monthly trip refresh triggers an additional build. Consequently, derived inventory/features are a daily analytical snapshot, not a live serving layer. Both paths use the one-slot `bluebikes_dbt_build` Airflow pool, so their dbt commands cannot overlap even when both are scheduled on the 10th. They use the existing `dbt` worker queue with minimum worker count zero. Build tasks do not retry an entire warehouse rebuild automatically; investigate a failed build before rerunning it.
 
-These are UTC DAG schedules. Astro must be awake for them to execute. The existing Tuesday-only wake window is incompatible with continuous GBFS and daily forecast freshness. `catchup=False` does not recover station observations missed while asleep; a late scheduler can still create the latest eligible scheduled interval. Always inspect the run's logical interval and actual start/end times.
+These are UTC DAG schedules. Astro must be awake for them to execute. The normal Tuesday-only wake window is incompatible with continuous GBFS and daily forecast freshness. The deployment is collecting continuously from Oct 29 through Nov 11 ([operating policy](operating-policy.md)). `catchup=False` does not recover station observations missed while asleep; a late scheduler can still create the latest eligible scheduled interval. Always inspect the run's logical interval and actual start/end times.
 
 ## Runtime packaging
 

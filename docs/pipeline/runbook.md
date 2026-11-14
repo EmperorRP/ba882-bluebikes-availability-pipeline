@@ -9,7 +9,7 @@ For the new isolated dbt image, build from the repository root using the named d
 - Astro deployment: `BA882 Team Project` (`cmv1byju444do01pl0bhotk1f`).
 - Runtime: `3.3-9`, based on Airflow `3.3.2`.
 - Workload identity: `astro-classical-level-9533@astro-us-central1-0001.iam.gserviceaccount.com`.
-- The deployment was hibernating at inspection on 2026-10-22. Inspect it again before assuming it is collecting data.
+- Collection has run continuously since 2026-10-29 and is confirmed through 2026-11-11 (see [operating policy](operating-policy.md)). After that, inspect the deployment again before assuming it is collecting data.
 
 ## Local Google access
 
@@ -56,7 +56,7 @@ $env:PATH = 'C:\Program Files\Git\bin;' + $env:PATH
 
 The default generated Astro integrity-test file was absent in the original project. Use the checked-in runtime tests above as deployment evidence; do not treat the CLI's skipped default test as a successful import check. CI also runs dependency consistency checks. The Google client dependencies require `opentelemetry-api==1.42.1` for compatibility with Runtime 3.3-9's existing SDK; removing that constraint caused Airflow to fail during import in the first runtime CI run.
 
-The four-hour wake period is for integration testing. It does not establish sustained collection. Agree an ongoing awake period with the course deployment administrator and its billing owner before claiming continuous ingestion. The current Tuesday-only wake schedule cannot support the collection contract.
+The four-hour wake period is for integration testing. It does not establish sustained collection. The continuous collection period (Oct 29 – Nov 11) is recorded in the [operating policy](operating-policy.md). The normal Tuesday-only wake schedule cannot support the collection contract outside that period.
 
 The image copies ingestion code into `/usr/local/airflow/ingestion`; tasks resolve it using `AIRFLOW_HOME`, independently of the versioned DAG bundle path. A DAG-only deployment cannot ship ingestion Python or dependency changes; deploy the image when either changes. Runtime tests mock task subprocesses and do not load cloud data.
 
