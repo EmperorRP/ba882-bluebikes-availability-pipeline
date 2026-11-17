@@ -82,7 +82,7 @@ The following are **UTC code schedules**. Continuous execution from Oct 29 is ev
 | Weather ingestion | `0 6 * * *` UTC | Deployed in PR #17; daily refresh aligns with the dbt forecast-freshness warning at 36 hours and error at 48 hours. | Separate historical backfills from forecast refresh as a follow-up optimization. |
 | Historical trips | `0 6 10 * *` | Monthly source cadence is appropriate, assuming the source archive is available by then. | Keep monthly and add a retry/alert path for delayed source publication. |
 | dbt build and freshness | After daily weather and monthly trips | Deployed via PR #20; actual weather chain succeeded October 25. One-slot pool; no full rebuild after each five-minute snapshot. | Maintain daily plus monthly cadence while awake; monitor freshness, failures and query usage. |
-| ML retraining | Not implemented | Labels exist at 1/3/6/24 h with multi-day coverage. Collection ends Nov 11, so the training set is fixed after that. | Train on the collected window; retraining only if collection resumes. |
+| ML retraining | `0 8 * * 1` UTC (`bluebikes_ml_training_dag`, paused on creation) | BigQuery ML split → train → score → metrics → evaluate per horizon. It skips when there are no new labelled origins, so it costs almost nothing while collection is stopped. | Deploy the image, grant `ml_models` write access, then unpause. See [ml/README.md](../../ml/README.md#orchestration-airflow). |
 
 ## Integration sequence
 

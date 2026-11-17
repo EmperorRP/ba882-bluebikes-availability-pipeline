@@ -9,3 +9,4 @@ RUN python -m venv /usr/local/airflow/dbt-venv && /usr/local/airflow/dbt-venv/bi
 COPY --chown=astro:0 ingestion /usr/local/airflow/ingestion
 COPY --chown=astro:0 warehouse /usr/local/airflow/warehouse
 COPY --from=dbt_project --chown=astro:0 . /usr/local/airflow/dbt
+COPY --from=ml_project --chown=astro:0 . /usr/local/airflow/ml
