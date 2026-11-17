@@ -50,6 +50,29 @@ python ml/bqml.py 01_split --horizon-minutes 1440 | bq query --use_legacy_sql=fa
 
 Run steps 01 → 05 in order. Any parameter in `DEFAULTS` can be overridden, for example `--horizon-minutes 60` for the 1 h model.
 
+`ml/run_bqml.py` runs a step directly with Application Default Credentials, using the same caps and labels as the DAG: `python ml/run_bqml.py 01_split --horizon-minutes 1440`. Two extra steps are available: `check` (are there new labelled origins?) and `evaluate` (record metrics and apply the quality gate).
+
+## Orchestration (Airflow)
+
+`orchestration/astro/dags/bluebikes_ml_training_dag.py` runs the pipeline weekly, on Mondays at 08:00 UTC, after the daily 06:00 weather ingestion and dbt build.
+
+```text
+check_for_new_labels ──> h60   : split → train_logreg                → score → metrics → evaluate
+                     ├─> h180  : split → train_logreg                → score → metrics → evaluate
+                     ├─> h360  : split → train_logreg                → score → metrics → evaluate
+                     └─> h1440 : split → train_logreg + train_boosted → score → metrics → evaluate
+```
+
+- **Skips unchanged data.** `check_for_new_labels` compares the newest labelled origin in `ml.station_availability_training_ready` with the newest origin in each `split_h{H}`. If nothing is new, every task is skipped, so the weekly schedule does not re-bill the ~14 GB boosted-tree run for the same model. To retrain anyway, trigger with `{"force_retrain": true}`.
+- **Which models are trained.** Boosted trees are trained only for 24 h, where they win. Logistic regression is trained for every horizon. `HORIZONS` in `run_bqml.py` defines this, and a test keeps the DAG in sync with it.
+- **Quality gate.** `evaluate` appends the run's metrics to `ml_models.metrics_history`, together with the Airflow run ID and code revision. It then fails the task unless the horizon's primary model (boosted at 24 h, logreg elsewhere) beats persistence on test average precision. Models are replaced in place, so a failed gate is an alert, not a rollback. To restore a model, retrain at the previous code revision.
+- **Cost controls.** Every BigQuery job has a bytes-billed cap (`MAX_GB_BILLED`: 30 GB for boosted training, 25 GB for split and score, 5 GB for logreg). BigQuery rejects a job that would go over its cap instead of billing it. Jobs carry the labels `pipeline=bluebikes-ml`, `step`, `horizon` and `airflow_run`, so each run's cost can be looked up in `INFORMATION_SCHEMA.JOBS`. Training tasks never retry automatically. A full forced run bills about 15–20 GB, mostly for the 24 h boosted tree.
+- **Paused on creation.** A deploy does not start training. Unpause the DAG, or trigger it manually, when you are ready.
+
+Deployment prerequisites:
+1. The image must include `ml/`. Build with `--build-context ml_project=./ml` (see [dbt orchestration](../docs/pipeline/dbt-orchestration.md#runtime-packaging)) and deploy the image. A DAG-only deploy does not ship `ml/`.
+2. The Astro workload identity needs `roles/bigquery.dataEditor` on the `ml_models` dataset. It already has read access to `ml` and `marts` through its dbt grants.
+
 ## Results (2026-11-13, test = last 36 h of origins, ~260K rows, 4.9% no-bike)
 
 Avg. precision is the area under the precision–recall curve for the no-bike class; random guessing scores 0.05. Top-50 precision: at each prediction time, the share of the 50 stations ranked most at risk that really had no bike. The best possible top-50 precision is about 0.57, because some prediction times have fewer than 50 empty stations.

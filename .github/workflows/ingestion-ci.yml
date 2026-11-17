@@ -20,7 +20,7 @@ jobs:
 
       - name: Check Python syntax
         run: |
-          python -m compileall -q ingestion orchestration/astro/dags orchestration/astro/ingestion orchestration/astro/warehouse
+          python -m compileall -q ingestion ml orchestration/astro/dags orchestration/astro/ingestion orchestration/astro/warehouse
 
       - name: Check DAG definitions
         run: |
@@ -32,6 +32,7 @@ jobs:
               "bluebikes_station_snapshot_dag",
               "bluebikes_trip_ingestion_dag",
               "weather_ingestion_dag",
+              "bluebikes_ml_training_dag",
           }
 
           found = set()
@@ -57,7 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build the deployment image
-        run: docker build --build-context dbt_project=./dbt --build-arg CODE_REVISION=${{ github.sha }} -t bluebikes-ingestion-ci orchestration/astro
+        run: docker build --build-context dbt_project=./dbt --build-context ml_project=./ml --build-arg CODE_REVISION=${{ github.sha }} -t bluebikes-ingestion-ci orchestration/astro
       - name: Import DAGs and test task commands in the actual runtime
         run: >-
           docker run --rm
