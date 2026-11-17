@@ -27,6 +27,7 @@ class IngestionDagTests(unittest.TestCase):
             "bluebikes_station_snapshot_dag": "*/5 * * * *",
             "bluebikes_trip_ingestion_dag": "0 6 10 * *",
             "weather_ingestion_dag": "0 6 * * *",
+            "bluebikes_ml_training_dag": "0 8 * * 1",
         }
         self.assertEqual(set(dag_bag.dags), set(expected_schedules))
         for dag_id, schedule in expected_schedules.items():

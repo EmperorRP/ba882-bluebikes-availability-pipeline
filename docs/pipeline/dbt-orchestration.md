@@ -25,20 +25,20 @@ These are UTC DAG schedules. Astro must be awake for them to execute. The normal
 
 ## Runtime packaging
 
-The canonical dbt code remains in the repository's `dbt` directory. Docker receives that directory as a named build context, rather than a second maintained copy. Its `.dockerignore` excludes real profiles, credentials-like environment files, logs and generated targets. dbt is installed into its own virtual environment because its dependencies must not replace Airflow's runtime dependencies.
+The canonical dbt code remains in the repository's `dbt` directory. Docker receives that directory as a named build context, rather than a second maintained copy. The BigQuery ML code in `ml/` is supplied the same way (`ml_project`) for the ML training DAG; see [ml/README.md](../../ml/README.md#orchestration-airflow). Its `.dockerignore` excludes real profiles, credentials-like environment files, logs and generated targets. dbt is installed into its own virtual environment because its dependencies must not replace Airflow's runtime dependencies.
 
 From the repository root:
 
 ```powershell
 $revision = git rev-parse HEAD
-docker build --build-context dbt_project=./dbt --build-arg CODE_REVISION=$revision -t bluebikes-phase1-dbt orchestration/astro
+docker build --build-context dbt_project=./dbt --build-context ml_project=./ml --build-arg CODE_REVISION=$revision -t bluebikes-phase1-dbt orchestration/astro
 docker run --rm --entrypoint python bluebikes-phase1-dbt -m unittest discover -s /usr/local/airflow/tests -v
 docker run --rm --entrypoint python bluebikes-phase1-dbt -m pip check
 docker run --rm --entrypoint /usr/local/airflow/dbt-venv/bin/pip bluebikes-phase1-dbt check
 docker run --rm --entrypoint /usr/local/airflow/dbt-venv/bin/dbt bluebikes-phase1-dbt parse --project-dir /usr/local/airflow/dbt --profiles-dir /usr/local/airflow/warehouse/profiles --no-partial-parse
 ```
 
-Use the prebuilt image when deploying from `orchestration/astro`; an ordinary implicit build does not supply the named dbt context:
+Use the prebuilt image when deploying from `orchestration/astro`; an ordinary implicit build does not supply the named dbt and ML contexts:
 
 ```powershell
 astro deploy cmv1byju444do01pl0bhotk1f --image-name bluebikes-phase1-dbt --wait
