@@ -3,7 +3,10 @@
 All compute runs inside BigQuery. Each task renders one ml/sql template and submits it as a single
 BigQuery job (see ml/run_bqml.py). Per horizon:
 
-    split -> train (logreg, plus boosted at 24 h) -> score -> evaluate
+    split -> train (logreg, plus boosted at 24 h) -> score -> metrics -> evaluate -> publish
+
+then publish_forecast_view refreshes ml_models.station_forecasts, the table the frontend reads
+(docs/ml/forecast-serving-contract.md). A horizon is only published if it passes evaluate.
 
 check_for_new_labels skips the whole run when ml.station_availability_training_ready has no origins
 newer than the last split, so a weekly schedule does not re-bill identical training. Trigger with
@@ -78,6 +81,7 @@ with DAG(
         python_callable=check_for_new_labels,
     )
 
+    horizon_groups = []
     for horizon, models in HORIZON_MODELS.items():
         with TaskGroup(group_id=f"h{horizon}") as horizon_group:
             split = PythonOperator(
@@ -112,5 +116,18 @@ with DAG(
                 op_kwargs={"horizon_minutes": horizon, "run_id": RUN_ID},
                 retries=0,
             )
-            split >> train >> score >> metrics >> evaluate
+            publish = PythonOperator(
+                task_id="publish",
+                python_callable=run_bqml_step,
+                op_kwargs={"step": "06_publish", "horizon_minutes": horizon, "run_id": RUN_ID},
+            )
+            split >> train >> score >> metrics >> evaluate >> publish
         check_new_labels >> horizon_group
+        horizon_groups.append(horizon_group)
+
+    publish_view = PythonOperator(
+        task_id="publish_forecast_view",
+        python_callable=run_bqml_step,
+        op_kwargs={"step": "07_forecast_view", "horizon_minutes": None, "run_id": RUN_ID},
+    )
+    horizon_groups >> publish_view

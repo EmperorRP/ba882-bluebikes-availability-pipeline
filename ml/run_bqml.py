@@ -42,6 +42,8 @@ MAX_GB_BILLED = {
     "03_train_boosted": 30,
     "04_score": 25,
     "05_metrics": 10,
+    "06_publish": 5,
+    "07_forecast_view": 1,
     "check": 2,
     "evaluate": 2,
 }
@@ -77,11 +79,17 @@ def _run(sql: str, kind: str, labels: dict, params: list | None = None, client=N
     return rows
 
 
-def run_step(step: str, horizon_minutes: int, run_id: str = "manual", client=None) -> int:
-    """Render one ml/sql step for a horizon, run it, and log its final result set."""
-    models = ",".join(HORIZONS[int(horizon_minutes)]["models"])
-    sql = bqml.render(step, horizon_minutes=horizon_minutes, models=models)
-    rows = _run(sql, step, {"horizon": horizon_minutes, "airflow_run": run_id}, client=client)
+def run_step(step: str, horizon_minutes: int | None, run_id: str = "manual", client=None) -> int:
+    """Render one ml/sql step for a horizon, run it, and log its final result set.
+
+    horizon_minutes is None for steps that cover every horizon (07_forecast_view)."""
+    if horizon_minutes is None:
+        sql = bqml.render(step, horizons=",".join(str(h) for h in HORIZONS))
+    else:
+        config = HORIZONS[int(horizon_minutes)]
+        sql = bqml.render(step, horizon_minutes=horizon_minutes, models=",".join(config["models"]),
+                          primary_model=config["primary"])
+    rows = _run(sql, step, {"horizon": horizon_minutes or "all", "airflow_run": run_id}, client=client)
     for row in rows[:50]:
         logging.info("  %s", dict(row.items()))
     return len(rows)
@@ -162,6 +170,8 @@ def main() -> None:
         print(has_new_labels())
     elif args.step == "evaluate":
         print(record_and_check(args.horizon_minutes))
+    elif args.step == "07_forecast_view":
+        run_step(args.step, None)
     else:
         run_step(args.step, args.horizon_minutes)
 

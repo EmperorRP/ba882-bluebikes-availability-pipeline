@@ -21,6 +21,8 @@ Training, scoring and evaluation all run inside BigQuery as SQL (BigQuery ML). N
 | 3. Boosted trees (XGBoost) | `sql/03_train_boosted.sql` | model `boosted_h{H}` |
 | 4. Score models + baselines | `sql/04_score.sql` | `scores_h{H}` |
 | 5. Metrics | `sql/05_metrics.sql` | `metrics_h{H}` |
+| 6. Publish forecasts | `sql/06_publish.sql` | `forecasts_h{H}`: the primary model's test-window forecasts, with station names and locations |
+| 7. Forecast view | `sql/07_forecast_view.sql` | view `station_forecasts`: all horizons, which the frontend reads |
 
 `{H}` is the horizon in minutes. The split is data-driven:
 - **test:** the last `test_hours` (36) of origins
@@ -48,7 +50,7 @@ Accuracy is not reported, because always predicting "has a bike" already scores 
 python ml/bqml.py 01_split --horizon-minutes 1440 | bq query --use_legacy_sql=false
 ```
 
-Run steps 01 → 05 in order. Any parameter in `DEFAULTS` can be overridden, for example `--horizon-minutes 60` for the 1 h model.
+Run steps 01 → 07 in order (`07_forecast_view` takes no horizon). Any parameter in `DEFAULTS` can be overridden, for example `--horizon-minutes 60` for the 1 h model.
 
 `ml/run_bqml.py` runs a step directly with Application Default Credentials, using the same caps and labels as the DAG: `python ml/run_bqml.py 01_split --horizon-minutes 1440`. Two extra steps are available: `check` (are there new labelled origins?) and `evaluate` (record metrics and apply the quality gate).
 
@@ -57,11 +59,13 @@ Run steps 01 → 05 in order. Any parameter in `DEFAULTS` can be overridden, for
 `orchestration/astro/dags/bluebikes_ml_training_dag.py` runs the pipeline weekly, on Mondays at 08:00 UTC, after the daily 06:00 weather ingestion and dbt build.
 
 ```text
-check_for_new_labels ──> h60   : split → train_logreg                → score → metrics → evaluate
-                     ├─> h180  : split → train_logreg                → score → metrics → evaluate
-                     ├─> h360  : split → train_logreg                → score → metrics → evaluate
-                     └─> h1440 : split → train_logreg + train_boosted → score → metrics → evaluate
+check_for_new_labels ──> h60   : split → train_logreg                → score → metrics → evaluate → publish ─┐
+                     ├─> h180  : split → train_logreg                → score → metrics → evaluate → publish ─┤
+                     ├─> h360  : split → train_logreg                → score → metrics → evaluate → publish ─┼─> publish_forecast_view
+                     └─> h1440 : split → train_logreg + train_boosted → score → metrics → evaluate → publish ─┘
 ```
+
+A horizon's forecasts are published only after its model passes `evaluate`. The frontend reads `ml_models.station_forecasts`; its columns, time windows and example queries are in the [forecast serving contract](../docs/ml/forecast-serving-contract.md).
 
 - **Skips unchanged data.** `check_for_new_labels` compares the newest labelled origin in `ml.station_availability_training_ready` with the newest origin in each `split_h{H}`. If nothing is new, every task is skipped, so the weekly schedule does not re-bill the ~14 GB boosted-tree run for the same model. To retrain anyway, trigger with `{"force_retrain": true}`.
 - **Which models are trained.** Boosted trees are trained only for 24 h, where they win. Logistic regression is trained for every horizon. `HORIZONS` in `run_bqml.py` defines this, and a test keeps the DAG in sync with it.

@@ -34,6 +34,10 @@ DEFAULTS = {
     "top_k": "50",
     # Comma-separated models scored in 04_score (each must exist as {name}_h{horizon}).
     "models": "logreg,boosted",
+    # Model published to the frontend by 06_publish (the horizon's best model; see ml/README.md).
+    "primary_model": "boosted",
+    # Horizons combined into the station_forecasts view by 07_forecast_view.
+    "horizons": "60,180,360,1440",
 }
 
 STEPS = sorted(p.stem for p in SQL_DIR.glob("*.sql"))
@@ -49,6 +53,10 @@ def render(step: str, **overrides: object) -> str:
     params["model_predictions"] = "\n".join(
         _PREDICT_BLOCK.format(name=name.strip(), **params)
         for name in params["models"].split(",") if name.strip()
+    )
+    params["forecast_union"] = "\nunion all\n".join(
+        f"select * from `{params['project']}.{params['dataset']}.forecasts_h{h.strip()}`"
+        for h in params["horizons"].split(",") if h.strip()
     )
     template = string.Template((SQL_DIR / f"{step}.sql").read_text(encoding="utf-8"))
     return template.substitute(params)
