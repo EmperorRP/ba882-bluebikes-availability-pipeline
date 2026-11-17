@@ -65,10 +65,14 @@ class MlTrainingDagTests(unittest.TestCase):
                     self.assertEqual(task.retries, 0)
                 self.assertEqual(self.dag.get_task(prefix + "score").downstream_task_ids, {prefix + "metrics"})
                 self.assertEqual(self.dag.get_task(prefix + "metrics").downstream_task_ids, {prefix + "evaluate"})
+                self.assertEqual(self.dag.get_task(prefix + "evaluate").downstream_task_ids, {prefix + "publish"})
+                self.assertEqual(self.dag.get_task(prefix + "publish").downstream_task_ids, {"publish_forecast_view"})
         boosted = {t for t in self.dag.task_ids if t.endswith("train_boosted")}
         self.assertEqual(boosted, {"h1440.train_boosted"})
 
     def test_dag_matches_runner_configuration(self):
+        self.assertEqual(self.dag.get_task("publish_forecast_view").upstream_task_ids,
+                         {f"h{h}.publish" for h in self.module.HORIZON_MODELS})
         self.assertEqual(self.module.HORIZON_MODELS,
                          {h: cfg["models"] for h, cfg in self.runner.HORIZONS.items()})
         self.assertEqual(self.module.TRAIN_STEPS, self.runner.TRAIN_STEPS)
@@ -109,6 +113,19 @@ class MlTrainingDagTests(unittest.TestCase):
         self.runner.run_step("04_score", 1440, client=client)
         self.assertEqual(set(re.findall(r"ml_models\.(\w+_h1440)`, \(select", client.jobs[0][0])),
                          {"logreg_h1440", "boosted_h1440"})
+
+    def test_publish_uses_each_horizons_primary_model(self):
+        for horizon, model in ((60, "logreg"), (1440, "boosted")):
+            client = FakeClient()
+            self.runner.run_step("06_publish", horizon, client=client)
+            sql = client.jobs[0][0]
+            self.assertIn(f"`ba882-bluebikes-pipeline.ml_models.forecasts_h{horizon}`", sql)
+            self.assertIn(f"where s.method = '{model}' and s.split = 'test'", sql)
+        client = FakeClient()
+        self.runner.run_step("07_forecast_view", None, client=client)
+        sql, config = client.jobs[0]
+        self.assertEqual(config.labels["horizon"], "all")
+        self.assertEqual(re.findall(r"forecasts_h(\d+)`", sql), ["60", "180", "360", "1440"])
 
     def test_new_label_check(self):
         old = datetime(2026, 11, 8, 23, 50, tzinfo=timezone.utc)
