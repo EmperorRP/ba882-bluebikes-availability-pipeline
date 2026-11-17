@@ -13,6 +13,7 @@ The [October 25 public verification summary](pipeline/evidence/verification-2026
 | [dbt and warehouse](dbt/README.md) | Setup, model contracts, handoff, audits, work log, and verification evidence |
 | [Pipeline and operations](pipeline/README.md) | Running pipeline status, scheduling, deployment, and operational runbook |
 | [Ingestion](ingestion/README.md) | Data sources and ingestion implementation references |
+| [Machine learning](ml/README.md) | Forecast serving contract for the frontend; model details are in [ml/README.md](../ml/README.md) |
 | [Architecture](architecture/README.md) | Business problem, system design, data model, and project boundaries |
 
 ## Keeping this organized
